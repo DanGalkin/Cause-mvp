@@ -1,0 +1,93 @@
+import './note.dart';
+import './button_decoration.dart';
+import './category_option.dart';
+
+class Parameter {
+  final String id;
+  final DateTime createdTime;
+  String parentBoardId;
+  String name;
+  VarType varType;
+  DurationType durationType;
+  String? metric;
+  //Map<int, Map> gradeOptions; - for ordinal vartype
+  CategoryOptionsList? categories;
+  Map<String, Note> notes;
+  ButtonDecoration decoration;
+
+  Parameter({
+    required this.id,
+    required this.createdTime,
+    required this.parentBoardId,
+    this.name = '',
+    this.varType = VarType.binary,
+    this.durationType = DurationType.moment,
+    this.metric,
+    this.categories,
+    required this.notes,
+    required this.decoration,
+  });
+
+  // Parameter.fromModel(Model model)
+  //     : id = model.id,
+  //       createdTime =
+  //           DateTime.fromMillisecondsSinceEpoch(model.data['createdTime']),
+  //       name = model.data['name'],
+  //       varType = VarType.values.byName(model.data['varType']),
+  //       durationType = DurationType.values.byName(model.data['durationType']),
+  //       metric = model.data['metric'],
+  //       categories = model.data['categories'];
+
+  // Model toModel() => Model(id: id, data: {
+  //       'createdTime': createdTime.millisecondsSinceEpoch,
+  //       'name': name,
+  //       'varType': varType.name,
+  //       'durationType': durationType.name,
+  //       'metric': metric,
+  //       'categories': categories,
+  //     });
+
+  Parameter.fromMap(map)
+      : id = map['id'],
+        createdTime = DateTime.fromMillisecondsSinceEpoch(map['createdTime']),
+        parentBoardId = map['parentBoardId'],
+        name = map['name'],
+        varType = VarType.values.byName(map['varType']),
+        durationType = DurationType.values.byName(map['durationType']),
+        metric = map['metric'],
+        categories = map.containsKey('categories')
+            ? CategoryOptionsList.fromMap(map['categories'])
+            : null,
+        notes = map.containsKey('notes')
+            ? Map<String, Note>.from(map['notes']
+                .map((id, noteMap) => MapEntry(id, Note.fromMap(noteMap))))
+            : <String, Note>{},
+        decoration = ButtonDecoration.fromMap(map['decoration']);
+
+  Map toMap() {
+    return {
+      'id': id,
+      'createdTime': createdTime.millisecondsSinceEpoch,
+      'parentBoardId': parentBoardId,
+      'name': name,
+      'varType': varType.name,
+      'durationType': durationType.name,
+      'metric': metric,
+      'categories': categories?.toMap(),
+      'notes': notes.map((id, note) => MapEntry(id, note.toMap())),
+      'decoration': decoration.toMap(),
+    };
+  }
+}
+
+enum VarType {
+  binary,
+  //ordinal,
+  categorical,
+  quantitative,
+}
+
+enum DurationType {
+  moment,
+  duration,
+}
