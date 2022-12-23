@@ -1,3 +1,4 @@
+import 'package:cause_flutter_mvp/view/view_utilities/ordering_utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/board_controller.dart';
@@ -26,13 +27,13 @@ class NotesListScreen extends StatelessWidget {
       ),
       body: Consumer<BoardController>(builder: (context, boards, child) {
         Parameter syncedParam = boards.boards[board.id]!.params[parameter.id]!;
+        List<Note> orderedNotes = orderNotesByTime(syncedParam);
         return Padding(
           padding: const EdgeInsets.all(15.0),
           child: ListView.separated(
-            itemCount: syncedParam.notes.keys.length,
+            itemCount: orderedNotes.length,
             itemBuilder: (context, index) {
-              String noteId = syncedParam.notes.keys.elementAt(index);
-              Note note = syncedParam.notes[noteId]!;
+              Note note = orderedNotes[index];
               return NoteTile(
                 note: note,
                 parameter: parameter,
