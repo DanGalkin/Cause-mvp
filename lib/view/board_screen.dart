@@ -9,12 +9,17 @@ import '../services/service_locator.dart';
 
 import './view_utilities/ordering_utilities.dart';
 import './view_utilities/action_validation_utilities.dart';
+import './view_utilities/text_utilities.dart';
 
 import './boards_screen.dart';
 import './create_parameter_screen.dart';
 import './parameter_screen.dart';
 import './share_board_screen.dart';
 import './analytics_screen.dart';
+
+import '../../model/note.dart';
+
+import 'package:intl/intl.dart';
 
 class BoardScreen extends StatelessWidget {
   final Board board;
@@ -163,6 +168,11 @@ class ParameterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Note? lastNote = parameter.lastNote;
+    bool showLastNote = lastNote != null && parameter.decoration.showLastNote;
+    if (showLastNote) {
+      getLastNoteString(lastNote);
+    }
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -200,7 +210,7 @@ class ParameterButton extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
+                  SizedBox(
                     height: 30,
                     child: FittedBox(
                       //fit: BoxFit.fitWidth,
@@ -215,16 +225,19 @@ class ParameterButton extends StatelessWidget {
                       ),
                     ),
                   ),
-
-                  /// will include when add a prop showLastNote to a Parameter
-                  // if (parameter.notes.isNotEmpty && button.showLastNote == true)
-                  //   Text(
-                  //     DateFormat.yMMMd().add_Hm().format(button.lastEvent()),
-                  //     style: const TextStyle(
-                  //       fontSize: 13,
-                  //       color: Color(0xFF7B7B7B),
-                  //     ),
-                  //   ),
+                  if (showLastNote)
+                    Flexible(
+                      child: FittedBox(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          getLastNoteString(lastNote),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF7B7B7B),
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),

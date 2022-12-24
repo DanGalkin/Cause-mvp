@@ -28,6 +28,25 @@ class Parameter {
     required this.decoration,
   });
 
+  List<Note> get notesOrderedByTime {
+    List<Note> noteList = notes.values.toList();
+
+    if (durationType == DurationType.moment) {
+      noteList.sort((a, b) => b.moment!.compareTo(a.moment!));
+    }
+
+    if (durationType == DurationType.duration) {
+      noteList.sort((a, b) => b.duration!.end.compareTo(a.duration!.end));
+    }
+
+    return noteList;
+  }
+
+  Note? get lastNote {
+    List<Note> orderedNoteList = notesOrderedByTime;
+    return orderedNoteList.isNotEmpty ? orderedNoteList.first : null;
+  }
+
   // Parameter.fromModel(Model model)
   //     : id = model.id,
   //       createdTime =

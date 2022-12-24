@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../model/parameter.dart';
 import '../../model/note.dart';
 
+import './text_utilities.dart';
+
 import 'package:intl/intl.dart';
 
 class Headline extends StatelessWidget {
@@ -36,6 +38,8 @@ class ParameterButtonTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Note? lastNote = parameter.lastNote;
+    bool showLastNote = lastNote != null && parameter.decoration.showLastNote;
     return Container(
         height: 60,
         width: 320,
@@ -61,19 +65,38 @@ class ParameterButtonTitle extends StatelessWidget {
               ),
               const SizedBox(width: 20),
               Expanded(
-                child: SizedBox(
-                  height: 30,
-                  child: FittedBox(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      parameter.name,
-                      textAlign: TextAlign.start,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        color: Colors.black,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: 30,
+                      child: FittedBox(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          parameter.name,
+                          textAlign: TextAlign.start,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.black,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    if (showLastNote)
+                      Flexible(
+                        child: FittedBox(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            getLastNoteString(lastNote),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF7B7B7B),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
               const SizedBox(width: 48),

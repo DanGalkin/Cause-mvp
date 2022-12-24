@@ -31,6 +31,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
   final CategoryOptionsList _categoryOptions = CategoryOptionsList(list: []);
   Color color = Colors.grey[200]!;
   String _icon = '';
+  bool _showLastNote = false;
 
   @override
   void initState() {
@@ -267,7 +268,8 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
         _selectedVarType,
         metricController.text,
         _categoryOptions,
-        ButtonDecoration(color: color, icon: _icon));
+        ButtonDecoration(
+            color: color, icon: _icon, showLastNote: _showLastNote));
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('$paramName : parameter created!'),
@@ -353,6 +355,23 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
                       ));
             },
             child: Text('Choose icon: $_icon')),
+        const SizedBox(height: 15),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          const Text('Show time of the last note',
+              style: TextStyle(
+                fontSize: 16,
+                color: Color(0xFF818181),
+              )),
+          Switch(
+            value: _showLastNote,
+            onChanged: (value) {
+              print('changing sholastnote to ${value}');
+              setState(() {
+                _showLastNote = value;
+              });
+            },
+          ),
+        ]),
         const SizedBox(height: 15),
       ],
     );

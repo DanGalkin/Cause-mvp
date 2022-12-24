@@ -27,7 +27,7 @@ class NotesListScreen extends StatelessWidget {
       ),
       body: Consumer<BoardController>(builder: (context, boards, child) {
         Parameter syncedParam = boards.boards[board.id]!.params[parameter.id]!;
-        List<Note> orderedNotes = orderNotesByTime(syncedParam);
+        List<Note> orderedNotes = syncedParam.notesOrderedByTime;
         return Padding(
           padding: const EdgeInsets.all(15.0),
           child: ListView.separated(
