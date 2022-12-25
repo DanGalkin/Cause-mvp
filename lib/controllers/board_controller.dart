@@ -183,6 +183,79 @@ class BoardController extends ChangeNotifier {
     fbServices.updateBoard(board.id, board.toMap());
   }
 
+  void editNote(
+      Board board, Parameter parameter, Note note, var time, var value) {
+    final String newNoteId = nanoid(10);
+    final DateTime nowTime = DateTime.now();
+    final DurationType durationType = parameter.durationType;
+    final VarType varType = parameter.varType;
+    Map<String, Map<String, dynamic>> noteValue = {};
+    DateTime? moment;
+    DateTimeRange? duration;
+    if (durationType == DurationType.duration) {
+      moment = null;
+      duration = time;
+      noteValue = {
+        'binary': {'value': true}
+      };
+    } else {
+      switch (varType) {
+        case VarType.binary:
+          {
+            moment = time;
+            duration = null;
+            noteValue = {
+              'binary': {'value': true}
+            };
+          }
+          break;
+        case VarType.quantitative:
+          {
+            moment = time;
+            duration = null;
+            noteValue = {
+              'quantitative': {'value': value, 'metric': parameter.metric}
+            };
+          }
+          break;
+        case VarType.categorical:
+          {
+            moment = time;
+            duration = null;
+            noteValue = {
+              'categorical': {
+                'id': value.id,
+                'name': value.name,
+              }
+            };
+          }
+          break;
+        default:
+          {
+            print('Invalid case');
+          }
+          break;
+      }
+    }
+    Note updatedNote = Note(
+      id: note.id,
+      timeCreated: note.timeCreated,
+      paramId: note.paramId,
+      durationType: note.durationType,
+      moment: moment,
+      duration: duration,
+      varType: note.varType,
+      value: noteValue,
+    );
+    board.params[parameter.id]!.notes[note.id] = updatedNote;
+    fbServices.updateBoard(board.id, board.toMap());
+  }
+
+  void deleteNote(Board board, Parameter parameter, Note note) {
+    board.params[parameter.id]!.notes.remove(note.id);
+    fbServices.updateBoard(board.id, board.toMap());
+  }
+
   Future<String?> uidByEmail(String email) async {
     return fbServices.uidByEmail(email);
   }

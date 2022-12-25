@@ -170,9 +170,6 @@ class ParameterButton extends StatelessWidget {
   Widget build(BuildContext context) {
     Note? lastNote = parameter.lastNote;
     bool showLastNote = lastNote != null && parameter.decoration.showLastNote;
-    if (showLastNote) {
-      getLastNoteString(lastNote);
-    }
     return GestureDetector(
       onTap: () {
         Navigator.push(

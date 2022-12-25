@@ -36,6 +36,7 @@ class NotesListScreen extends StatelessWidget {
               Note note = orderedNotes[index];
               return NoteTile(
                 note: note,
+                board: board,
                 parameter: parameter,
               );
             },

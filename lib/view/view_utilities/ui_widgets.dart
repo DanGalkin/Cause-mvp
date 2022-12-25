@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../model/parameter.dart';
 import '../../model/note.dart';
+import '../../model/board.dart';
+import '../parameter_screen.dart';
 
 import './text_utilities.dart';
 
@@ -83,19 +85,19 @@ class ParameterButtonTitle extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (showLastNote)
-                      Flexible(
-                        child: FittedBox(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            getLastNoteString(lastNote),
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFF7B7B7B),
-                            ),
-                          ),
-                        ),
-                      ),
+                    // if (showLastNote)
+                    //   Flexible(
+                    //     child: FittedBox(
+                    //       alignment: Alignment.centerLeft,
+                    //       child: Text(
+                    //         getLastNoteString(lastNote),
+                    //         style: const TextStyle(
+                    //           fontSize: 13,
+                    //           color: Color(0xFF7B7B7B),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
                   ],
                 ),
               ),
@@ -107,10 +109,15 @@ class ParameterButtonTitle extends StatelessWidget {
 }
 
 class NoteTile extends StatelessWidget {
-  const NoteTile({required this.note, required this.parameter, super.key});
+  const NoteTile(
+      {required this.note,
+      required this.board,
+      required this.parameter,
+      super.key});
 
   final Note note;
   final Parameter parameter;
+  final Board board;
 
   @override
   Widget build(BuildContext context) {
@@ -149,13 +156,14 @@ class NoteTile extends StatelessWidget {
           ),
         IconButton(
           onPressed: () {
-            // Navigator.push(
-            //     context,
-            //     MaterialPageRoute(
-            //         builder: (context) => EditNoteScreen(
-            //               button: button,
-            //               note: note,
-            //             )));
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ParameterScreen(
+                          board: board,
+                          parameter: parameter,
+                          noteToEdit: note,
+                        )));
           },
           icon: const Icon(
             Icons.edit_note,
