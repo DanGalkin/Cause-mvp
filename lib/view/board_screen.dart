@@ -240,15 +240,17 @@ class ParameterButton extends StatelessWidget {
             ),
 
             /// not yet decided how to edit a parameter
-            // IconButton(
-            //     onPressed: () {
-            //       Navigator.push(
-            //           context,
-            //           MaterialPageRoute(
-            //               builder: (context) => EditParamScreen(
-            //                   button: button, storage: ButtonsStorage())));
-            //     },
-            //     icon: const Icon(Icons.edit_note, color: Color(0xFF818181))),
+            IconButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CreateParameterScreen(
+                                board: board,
+                                parameter: parameter,
+                              )));
+                },
+                icon: const Icon(Icons.edit_note, color: Color(0xFF818181))),
           ],
         ),
       ),

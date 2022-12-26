@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:cause_flutter_mvp/model/category_option.dart';
+import 'package:cause_flutter_mvp/view/view_utilities/action_validation_utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:nanoid/nanoid.dart';
 import 'package:provider/provider.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:dotted_border/dotted_border.dart';
 
 import '../controllers/board_controller.dart';
 import '../model/board.dart';
@@ -14,7 +16,9 @@ import './view_utilities/pickers.dart';
 
 class CreateParameterScreen extends StatefulWidget {
   final Board board;
-  const CreateParameterScreen({Key? key, required this.board})
+  final Parameter? parameter;
+
+  const CreateParameterScreen({Key? key, required this.board, this.parameter})
       : super(key: key);
 
   @override
@@ -26,89 +30,148 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
   late TextEditingController nameController;
   late TextEditingController metricController;
   late TextEditingController categoryController;
+
   DurationType _selectedDurationType = DurationType.moment;
   VarType _selectedVarType = VarType.binary;
-  final CategoryOptionsList _categoryOptions = CategoryOptionsList(list: []);
-  Color color = Colors.grey[200]!;
+
+  CategoryOptionsList _categoryOptions = CategoryOptionsList(list: []);
+  Color _color = Colors.grey[200]!;
   String _icon = '';
   bool _showLastNote = false;
+
+  //props for editing
+  late bool _editScreen;
+  late Parameter _parameter;
 
   @override
   void initState() {
     nameController = TextEditingController();
     metricController = TextEditingController();
     categoryController = TextEditingController();
+
+    _editScreen = widget.parameter != null ? true : false;
+    if (_editScreen) {
+      _parameter = widget.parameter!;
+      nameController.text = _parameter.name;
+      _icon = _parameter.decoration.icon;
+      _color = _parameter.decoration.color;
+      _showLastNote = _parameter.decoration.showLastNote;
+      _selectedVarType = _parameter.varType;
+      _selectedDurationType = _parameter.durationType;
+
+      if (_parameter.varType == VarType.categorical) {
+        _categoryOptions = _parameter.categories!;
+      }
+
+      if (_parameter.varType == VarType.quantitative) {
+        metricController.text = _parameter.metric!;
+      }
+    }
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('Create new parameter')),
-        body: Stepper(
-          currentStep: _step,
-          onStepContinue: () {
+      appBar: AppBar(
+          title: Text(_editScreen
+              ? 'Edit parameter: ${_parameter.name}'
+              : 'Create new parameter')),
+      body: Stepper(
+        currentStep: _step,
+        onStepContinue: () {
+          setState(() {
+            _step++;
+          });
+        },
+        onStepCancel: () {
+          if (_step > 0) {
             setState(() {
-              _step++;
+              _step--;
             });
-          },
-          onStepCancel: () {
-            if (_step > 0) {
-              setState(() {
-                _step--;
-              });
-            }
-          },
-          onStepTapped: (value) {
+          }
+        },
+        onStepTapped: (value) {
+          if (_editScreen == false) {
             if (value <= _step) {
               setState(() {
                 _step = value;
               });
             }
-          },
-          controlsBuilder: ((context, details) {
-            return Row(children: [
-              //magical number 4 - is the last step index - should be refactored
-              details.currentStep != 4
-                  ? ElevatedButton(
-                      onPressed: details.onStepContinue,
-                      child: const Text('NEXT'),
+          } else {
+            setState(() {
+              _step = value;
+            });
+          }
+        },
+        controlsBuilder: ((context, details) {
+          return _editScreen
+              ? const SizedBox.shrink()
+              : Row(children: [
+                  //magical number 4 - is the last step index - should be refactored
+                  details.currentStep != 4
+                      ? ElevatedButton(
+                          onPressed: details.onStepContinue,
+                          child: const Text('NEXT'),
+                        )
+                      : ElevatedButton(
+                          onPressed: () {
+                            _createNewParameter(context);
+                          },
+                          child: const Text('CREATE & CONTINUE'))
+                ]);
+        }),
+        steps: [
+          Step(
+            title: _step < 1
+                ? const Text('Give a name')
+                : Text('Name: ${nameController.text}'),
+            content: _buildNameInput(),
+          ),
+          Step(
+              title: _step < 2
+                  ? const Text('Select Duration type')
+                  : Text('Duration type: ${_selectedDurationType.name}'),
+              content: _editScreen
+                  ? Container(
+                      alignment: Alignment.centerLeft,
+                      child: const Text(
+                        'Duration type is fixed. You cannot change it yet.',
+                        textAlign: TextAlign.left,
+                      ),
                     )
-                  : ElevatedButton(
-                      onPressed: () {
-                        _createNewParameter(context);
-                      },
-                      child: const Text('CREATE & CONTINUE'))
-            ]);
-          }),
-          steps: [
-            Step(
-              title: _step < 1
-                  ? Text('Give a name')
-                  : Text('Name: ${nameController.text}'),
-              content: _buildNameInput(),
-            ),
-            Step(
-                title: _step < 2
-                    ? Text('Select Duration type')
-                    : Text('Duration type: ${_selectedDurationType.name}'),
-                content: _buildDurationTypeInput()),
-            Step(
-              title: _step < 3
-                  ? Text('Select Data type')
-                  : Text('Data type: ${_selectedVarType.name}'),
-              content: _buildDataTypeInput(),
-            ),
-            Step(
-              title: Text('Select Data properties'),
-              content: _buildDataPropsInput(context),
-            ),
-            Step(
-              title: Text('Choose decoration'),
-              content: _buildDecorationInput(context),
-            ),
-          ],
-        ));
+                  : _buildDurationTypeInput()),
+          Step(
+            title: _step < 3
+                ? const Text('Select Data type')
+                : Text('Data type: ${_selectedVarType.name}'),
+            content: _editScreen
+                ? Container(
+                    alignment: Alignment.centerLeft,
+                    child: const Text(
+                      'Data type is fixed. You cannot change it yet.',
+                      textAlign: TextAlign.left,
+                    ),
+                  )
+                : _buildDataTypeInput(),
+          ),
+          Step(
+            title: const Text('Select Data properties'),
+            content: _buildDataPropsInput(context),
+          ),
+          Step(
+            title: const Text('Choose decoration'),
+            content: _buildDecorationInput(context),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        label: const Text('SAVE EDIT'),
+        icon: const Icon(Icons.edit),
+        onPressed: _validateAndSave,
+      ),
+    );
   }
 
   Widget _buildNameInput() {
@@ -119,7 +182,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
     return Column(
       children: [
         RadioListTile<DurationType>(
-          title: Text('Moment'),
+          title: const Text('Moment'),
           value: DurationType.moment,
           groupValue: _selectedDurationType,
           onChanged: (DurationType? value) {
@@ -129,7 +192,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
           },
         ),
         RadioListTile<DurationType>(
-          title: Text('Duration'),
+          title: const Text('Duration'),
           value: DurationType.duration,
           groupValue: _selectedDurationType,
           onChanged: (DurationType? value) {
@@ -147,10 +210,13 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
     return Column(
       children: [
         if (_selectedDurationType == DurationType.duration)
-          Text(
-              'If a parameter track a duration it can only have a binary value. I.e. it only occurs or not.'),
+          Container(
+            alignment: Alignment.centerLeft,
+            child: const Text(
+                'If a parameter track a duration it can only have a binary value. I.e. it only occurs or not.'),
+          ),
         RadioListTile<VarType>(
-          title: Text('Binary'),
+          title: const Text('Binary'),
           value: VarType.binary,
           groupValue: _selectedVarType,
           onChanged: _selectedDurationType == DurationType.duration
@@ -162,7 +228,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
                 },
         ),
         RadioListTile<VarType>(
-          title: Text('Quantitative'),
+          title: const Text('Quantitative'),
           value: VarType.quantitative,
           groupValue: _selectedVarType,
           onChanged: _selectedDurationType == DurationType.duration
@@ -174,7 +240,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
                 },
         ),
         RadioListTile<VarType>(
-          title: Text('Categorical'),
+          title: const Text('Categorical'),
           value: VarType.categorical,
           groupValue: _selectedVarType,
           onChanged: _selectedDurationType == DurationType.duration
@@ -192,8 +258,11 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
   Widget _buildDataPropsInput(BuildContext context) {
     switch (_selectedVarType) {
       case VarType.binary:
-        return const Text(
-            'No need for additional properties for binary parameter. It either occured, or not.');
+        return Container(
+          alignment: Alignment.centerLeft,
+          child: const Text(
+              'No need for additional properties for binary parameter. It either occured, or not.'),
+        );
       case VarType.quantitative:
         return Column(children: [
           const Text('Select a metric (kg, ml, pcs, times, etc.)'),
@@ -218,7 +287,9 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
 
   Widget _buildCategoryCreator(BuildContext context) {
     return Column(children: [
-      const Text('Create categories for your parameter:'),
+      Container(
+          alignment: Alignment.centerLeft,
+          child: const Text('Create categories for your parameter:')),
       Row(
         children: [
           Expanded(
@@ -269,7 +340,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
         metricController.text,
         _categoryOptions,
         ButtonDecoration(
-            color: color, icon: _icon, showLastNote: _showLastNote));
+            color: _color, icon: _icon, showLastNote: _showLastNote));
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('$paramName : parameter created!'),
@@ -279,9 +350,33 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
     Navigator.pop(context);
   }
 
+  void _validateAndSave() async {
+    bool? validated = await validateUserAction(
+        context: context,
+        validationText:
+            'The parameter properties will be changed for every board user.');
+    if (validated == true) {
+      Provider.of<BoardController>(context, listen: false).editParameter(
+          widget.board,
+          _parameter,
+          nameController.text,
+          metricController.text,
+          _categoryOptions,
+          ButtonDecoration(
+              color: _color, icon: _icon, showLastNote: _showLastNote));
+
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('${nameController.text} : parameter edited!'),
+        duration: const Duration(seconds: 2),
+      ));
+    }
+  }
+
   void onColorButtonTap(buttonColor) {
     setState(() {
-      color = buttonColor;
+      _color = buttonColor;
     });
   }
 
@@ -292,27 +387,27 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
           ColorCircleButton(
             onTap: onColorButtonTap,
             color: Colors.grey[200]!,
-            selectedColor: color,
+            selectedColor: _color,
           ),
           ColorCircleButton(
             onTap: onColorButtonTap,
             color: Colors.deepOrange[200]!,
-            selectedColor: color,
+            selectedColor: _color,
           ),
           ColorCircleButton(
             onTap: onColorButtonTap,
             color: Colors.orange[200]!,
-            selectedColor: color,
+            selectedColor: _color,
           ),
           ColorCircleButton(
             onTap: onColorButtonTap,
             color: Colors.lightGreen[200]!,
-            selectedColor: color,
+            selectedColor: _color,
           ),
           ColorCircleButton(
             onTap: onColorButtonTap,
             color: Colors.cyan[200]!,
-            selectedColor: color,
+            selectedColor: _color,
           ),
         ]),
         const SizedBox(height: 15),
@@ -320,57 +415,93 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
           ColorCircleButton(
             onTap: onColorButtonTap,
             color: Colors.indigo[200]!,
-            selectedColor: color,
+            selectedColor: _color,
           ),
           ColorCircleButton(
             onTap: onColorButtonTap,
             color: Colors.pink[200]!,
-            selectedColor: color,
+            selectedColor: _color,
           ),
           ColorCircleButton(
             onTap: onColorButtonTap,
             color: Colors.blueGrey[200]!,
-            selectedColor: color,
+            selectedColor: _color,
           ),
           ColorCircleButton(
             onTap: onColorButtonTap,
             color: Colors.yellow[200]!,
-            selectedColor: color,
+            selectedColor: _color,
           ),
           ColorCircleButton(
             onTap: onColorButtonTap,
             color: Colors.purple[200]!,
-            selectedColor: color,
+            selectedColor: _color,
           ),
         ]),
+        const SizedBox(height: 20),
+        //Icon selector
+        InkWell(
+          onTap: () {
+            showDialog(
+                context: context,
+                builder: (context) => EmogiPickerDialog(
+                      onEmojiSelected: (emoji) => setState(() {
+                        _icon = emoji.emoji;
+                      }),
+                    ));
+          }, //show emoji picker
+          child: SizedBox(
+            child: Row(children: <Widget>[
+              //dotted box with an Image selected
+              DottedBorder(
+                  borderType: BorderType.RRect,
+                  radius: const Radius.circular(3),
+                  color: const Color(0xFFBABABA),
+                  strokeWidth: 1,
+                  child: Container(
+                    alignment: Alignment.center,
+                    width: 35,
+                    height: 35,
+                    child: Text(
+                      _icon,
+                      style: const TextStyle(
+                        fontSize: 25,
+                      ),
+                    ),
+                  )),
+              const SizedBox(
+                width: 18,
+              ),
+              const Text('Icon: click to choose',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xFF818181),
+                  )),
+            ]),
+          ),
+        ),
         const SizedBox(height: 15),
-        TextButton(
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (context) => EmogiPickerDialog(
-                        onEmojiSelected: (emoji) => setState(() {
-                          _icon = emoji.emoji;
-                        }),
-                      ));
-            },
-            child: Text('Choose icon: $_icon')),
-        const SizedBox(height: 15),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        //ShowLastnote switcher
+        Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+          SizedBox(
+            width: 37,
+            child: Switch(
+              value: _showLastNote,
+              onChanged: (value) {
+                setState(() {
+                  _showLastNote = value;
+                });
+              },
+            ),
+          ),
+          const SizedBox(
+            width: 18,
+          ),
           const Text('Show time of the last note',
               style: TextStyle(
                 fontSize: 16,
                 color: Color(0xFF818181),
               )),
-          Switch(
-            value: _showLastNote,
-            onChanged: (value) {
-              print('changing sholastnote to ${value}');
-              setState(() {
-                _showLastNote = value;
-              });
-            },
-          ),
         ]),
         const SizedBox(height: 15),
       ],

@@ -111,6 +111,31 @@ class BoardController extends ChangeNotifier {
     await fbServices.updateBoard(board.id, board.toMap());
   }
 
+  void editParameter(
+      Board board,
+      Parameter? parameter,
+      String newName,
+      String? newMetric,
+      CategoryOptionsList? newCategories,
+      ButtonDecoration newDecoration) async {
+    if (parameter != null) {
+      Parameter updatedParameter = Parameter(
+        id: parameter.id,
+        createdTime: parameter.createdTime,
+        parentBoardId: parameter.parentBoardId,
+        name: newName,
+        durationType: parameter.durationType,
+        varType: parameter.varType,
+        metric: newMetric,
+        categories: newCategories,
+        notes: parameter.notes,
+        decoration: newDecoration,
+      );
+      board.params[parameter.id] = updatedParameter;
+      await fbServices.updateBoard(board.id, board.toMap());
+    }
+  }
+
   void deleteParameter(Board board, Parameter parameter) {
     board.params.remove(parameter.id);
     fbServices.updateBoard(board.id, board.toMap());
