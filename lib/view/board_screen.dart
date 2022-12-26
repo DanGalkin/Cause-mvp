@@ -1,5 +1,6 @@
 import 'package:cause_flutter_mvp/services/firebase_services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 
 import '../model/board.dart';
@@ -125,24 +126,48 @@ class BoardScreen extends StatelessWidget {
               if (index == paramList.length) {
                 return const SizedBox(height: 50);
               } else {
-                Parameter param = paramList[index];
-                return Dismissible(
-                  key: ValueKey(param.id),
-                  background: Container(color: Colors.red),
-                  direction: DismissDirection.endToStart,
-                  confirmDismiss: (_) {
-                    return validateUserAction(
-                        context: context,
-                        validationText:
-                            'All notes and parameter will be deleted from all users');
-                  },
-                  onDismissed: (_) {
-                    getIt<BoardController>()
-                        .deleteParameter(syncedBoard, param);
-                  },
+                Parameter parameter = paramList[index];
+                return Slidable(
+                  key: ValueKey(parameter.id),
+                  endActionPane: ActionPane(
+                    motion: const DrawerMotion(),
+                    children: [
+                      SlidableAction(
+                        onPressed: (context) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => CreateParameterScreen(
+                                        board: syncedBoard,
+                                        parameter: parameter,
+                                      )));
+                        },
+                        backgroundColor: Colors.grey.shade700,
+                        foregroundColor: Colors.white,
+                        icon: Icons.edit_note,
+                        label: 'Edit',
+                      ),
+                      SlidableAction(
+                        onPressed: (context) async {
+                          bool? validated = await validateUserAction(
+                              context: context,
+                              validationText:
+                                  'Parameter and all its notes will be deleted for all users.');
+                          if (validated == true) {
+                            getIt<BoardController>()
+                                .deleteParameter(syncedBoard, parameter);
+                          }
+                        },
+                        backgroundColor: const Color(0xFFFE4A49),
+                        foregroundColor: Colors.white,
+                        icon: Icons.delete,
+                        label: 'Delete',
+                      ),
+                    ],
+                  ),
                   child: Center(
                     child: ParameterButton(
-                      parameter: param,
+                      parameter: parameter,
                       board: syncedBoard,
                     ),
                   ),
@@ -238,19 +263,6 @@ class ParameterButton extends StatelessWidget {
                 ],
               ),
             ),
-
-            /// not yet decided how to edit a parameter
-            IconButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CreateParameterScreen(
-                                board: board,
-                                parameter: parameter,
-                              )));
-                },
-                icon: const Icon(Icons.edit_note, color: Color(0xFF818181))),
           ],
         ),
       ),
