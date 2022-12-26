@@ -37,6 +37,8 @@ class _ParameterScreenState extends State<ParameterScreen> {
 
   late bool _isValueSelected;
 
+  late bool _isRecording;
+
   //true, if the note is edited, false if created new note
   late bool _editScreen;
 
@@ -53,6 +55,12 @@ class _ParameterScreenState extends State<ParameterScreen> {
     if (!_editScreen) {
       _isValueSelected =
           widget.parameter.varType == VarType.binary ? true : false;
+      _isRecording = widget.parameter.recordState.recording;
+      if (_isRecording) {
+        _duration = DateTimeRange(
+            start: widget.parameter.recordState.startedAt!,
+            end: DateTime.now());
+      }
     }
     //set state if editing existing note
     if (_editScreen) {
@@ -290,6 +298,12 @@ class _ParameterScreenState extends State<ParameterScreen> {
         content: Text('${widget.parameter.name} : new note added!'),
         duration: const Duration(seconds: 2),
       ));
+
+      //if parameter has been recorded, cancel the record
+      if (_isRecording) {
+        Provider.of<BoardController>(context, listen: false)
+            .cancelRecording(widget.board, widget.parameter);
+      }
     } else {
       Provider.of<BoardController>(context, listen: false)
           .editNote(widget.board, widget.parameter, _note, time, value);

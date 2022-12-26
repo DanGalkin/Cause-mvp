@@ -247,7 +247,8 @@ class ParameterButton extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (showLastNote)
+                  //show Last note, if this decoration option is on and parameter is not recorded
+                  if (showLastNote && parameter.recordState.recording == false)
                     Flexible(
                       child: FittedBox(
                         alignment: Alignment.centerLeft,
@@ -260,9 +261,65 @@ class ParameterButton extends StatelessWidget {
                         ),
                       ),
                     ),
+                  if (parameter.recordState.recording == true)
+                    Flexible(
+                      child: FittedBox(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          showStartOfRecording(parameter),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF7B7B7B),
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
+            if (parameter.durationType == DurationType.duration &&
+                parameter.recordState.recording == false)
+              IconButton(
+                  onPressed: () {
+                    getIt<BoardController>().startRecording(board, parameter);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content:
+                          Text('${parameter.name} : recording has started!'),
+                      duration: const Duration(seconds: 2),
+                    ));
+                  },
+                  icon: const Icon(Icons.play_arrow_outlined,
+                      color: Colors.green)),
+            if (parameter.durationType == DurationType.duration &&
+                parameter.recordState.recording == true)
+              Row(
+                children: [
+                  IconButton(
+                      onPressed: () {
+                        getIt<BoardController>()
+                            .addRecordingNote(board, parameter);
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                              '${parameter.name} : note added and recording stopped.'),
+                          duration: const Duration(seconds: 2),
+                        ));
+                      },
+                      icon: const Icon(Icons.pause_outlined,
+                          color: Colors.green)),
+                  IconButton(
+                      onPressed: () {
+                        getIt<BoardController>()
+                            .cancelRecording(board, parameter);
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                              '${parameter.name} : recording was cancelled!'),
+                          duration: const Duration(seconds: 2),
+                        ));
+                      },
+                      icon:
+                          const Icon(Icons.cancel_outlined, color: Colors.red)),
+                ],
+              ),
           ],
         ),
       ),

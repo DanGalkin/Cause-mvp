@@ -80,3 +80,12 @@ String getLastNoteString(Note note) {
 
   return '';
 }
+
+String showStartOfRecording(Parameter parameter) {
+  if (parameter.recordState.recording == false) {
+    return '';
+  }
+
+  DateTime startMoment = parameter.recordState.startedAt!;
+  return 'Started: ${toContextualMoment(startMoment)}';
+}

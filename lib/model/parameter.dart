@@ -14,6 +14,7 @@ class Parameter {
   CategoryOptionsList? categories;
   Map<String, Note> notes;
   ButtonDecoration decoration;
+  RecordState recordState;
 
   Parameter({
     required this.id,
@@ -26,6 +27,7 @@ class Parameter {
     this.categories,
     required this.notes,
     required this.decoration,
+    this.recordState = const RecordState(),
   });
 
   List<Note> get notesOrderedByTime {
@@ -81,7 +83,10 @@ class Parameter {
             ? Map<String, Note>.from(map['notes']
                 .map((id, noteMap) => MapEntry(id, Note.fromMap(noteMap))))
             : <String, Note>{},
-        decoration = ButtonDecoration.fromMap(map['decoration']);
+        decoration = ButtonDecoration.fromMap(map['decoration']),
+        recordState = map.containsKey('recordState')
+            ? RecordState.fromMap(map['recordState'])
+            : const RecordState();
 
   Map toMap() {
     return {
@@ -95,6 +100,32 @@ class Parameter {
       'categories': categories?.toMap(),
       'notes': notes.map((id, note) => MapEntry(id, note.toMap())),
       'decoration': decoration.toMap(),
+      'recordState': recordState.toMap(),
+    };
+  }
+}
+
+class RecordState {
+  final bool recording;
+  final DateTime? startedAt;
+  final String? startedByUserId;
+
+  const RecordState(
+      {this.recording = false, this.startedAt, this.startedByUserId});
+
+  RecordState.fromMap(Map map)
+      : recording = map['recording'] == 'true',
+        startedAt = map['startedAt'] == 'null'
+            ? null
+            : DateTime.fromMillisecondsSinceEpoch(map['startedAt']),
+        startedByUserId =
+            map['startedByUserId'] == 'null' ? null : map['startedByUserId'];
+
+  Map toMap() {
+    return {
+      'recording': recording.toString(),
+      'startedAt': startedAt?.millisecondsSinceEpoch ?? 'null',
+      'startedByUserId': startedByUserId.toString(),
     };
   }
 }

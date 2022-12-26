@@ -141,7 +141,8 @@ class BoardController extends ChangeNotifier {
     fbServices.updateBoard(board.id, board.toMap());
   }
 
-  void addNote(Board board, Parameter parameter, var time, var value) {
+  Future<void> addNote(
+      Board board, Parameter parameter, var time, var value) async {
     final String newNoteId = nanoid(10);
     final DateTime nowTime = DateTime.now();
     final DurationType durationType = parameter.durationType;
@@ -279,6 +280,32 @@ class BoardController extends ChangeNotifier {
   void deleteNote(Board board, Parameter parameter, Note note) {
     board.params[parameter.id]!.notes.remove(note.id);
     fbServices.updateBoard(board.id, board.toMap());
+  }
+
+  void startRecording(Board board, Parameter parameter) async {
+    final String uid = fbServices.currentUser!.uid;
+    RecordState newRecordState = RecordState(
+      recording: true,
+      startedAt: DateTime.now(),
+      startedByUserId: uid,
+    );
+    parameter.recordState = newRecordState;
+    board.params[parameter.id] = parameter;
+    await fbServices.updateBoard(board.id, board.toMap());
+  }
+
+  Future<void> cancelRecording(Board board, Parameter parameter) async {
+    RecordState newRecordState = const RecordState();
+    parameter.recordState = newRecordState;
+    board.params[parameter.id] = parameter;
+    await fbServices.updateBoard(board.id, board.toMap());
+  }
+
+  void addRecordingNote(Board board, Parameter parameter) async {
+    DateTimeRange timeRange = DateTimeRange(
+        start: parameter.recordState.startedAt!, end: DateTime.now());
+    await addNote(board, parameter, timeRange, true);
+    await cancelRecording(board, parameter);
   }
 
   Future<String?> uidByEmail(String email) async {
