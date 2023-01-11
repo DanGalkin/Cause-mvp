@@ -282,11 +282,11 @@ class BoardController extends ChangeNotifier {
     fbServices.updateBoard(board.id, board.toMap());
   }
 
-  void startRecording(Board board, Parameter parameter) async {
+  void startRecording(Board board, Parameter parameter, [startedAt]) async {
     final String uid = fbServices.currentUser!.uid;
     RecordState newRecordState = RecordState(
       recording: true,
-      startedAt: DateTime.now(),
+      startedAt: startedAt ?? DateTime.now(),
       startedByUserId: uid,
     );
     parameter.recordState = newRecordState;

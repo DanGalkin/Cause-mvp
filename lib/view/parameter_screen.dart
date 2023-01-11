@@ -121,18 +121,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
           )),
         ),
       ),
-      floatingActionButton: _editScreen
-          ? _deleteEditFABs(context)
-          : FloatingActionButton.extended(
-              onPressed: _isValueSelected
-                  ? () {
-                      _submitNoteCreation(context);
-                    }
-                  : null,
-              backgroundColor: _isValueSelected ? null : Colors.grey,
-              label: const Text('SAVE NOTE'),
-              icon: const Icon(Icons.add),
-            ),
+      floatingActionButton: _showFabs(context),
     );
   }
 
@@ -149,7 +138,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
           label: const Text('DELETE NOTE'),
           icon: const Icon(Icons.delete),
         ),
-        SizedBox(width: 20),
+        const SizedBox(width: 20),
         FloatingActionButton.extended(
           heroTag: 'EDIT',
           onPressed: _isValueSelected
@@ -162,6 +151,58 @@ class _ParameterScreenState extends State<ParameterScreen> {
           icon: const Icon(Icons.edit),
         ),
       ],
+    );
+  }
+
+  Widget _recordSaveFABs(BuildContext context) {
+    bool recordIsValid = _duration.start.isBefore(DateTime.now());
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        FloatingActionButton.extended(
+          heroTag: 'RECORD',
+          onPressed: recordIsValid
+              ? () {
+                  _startRecording(context);
+                }
+              : null,
+          backgroundColor:
+              recordIsValid ? const Color(0xFFB3261E) : Colors.grey,
+          label: const Text('RECORD'),
+          icon: const Icon(Icons.album),
+        ),
+        const SizedBox(width: 20),
+        FloatingActionButton.extended(
+          onPressed: _isValueSelected
+              ? () {
+                  _submitNoteCreation(context);
+                }
+              : null,
+          backgroundColor: _isValueSelected ? null : Colors.grey,
+          label: const Text('SAVE NOTE'),
+          icon: const Icon(Icons.add),
+        ),
+      ],
+    );
+  }
+
+  Widget _showFabs(BuildContext context) {
+    if (_editScreen == true) {
+      return _deleteEditFABs(context);
+    }
+    if (widget.parameter.durationType == DurationType.duration &&
+        _isRecording == false) {
+      return _recordSaveFABs(context);
+    }
+    return FloatingActionButton.extended(
+      onPressed: _isValueSelected
+          ? () {
+              _submitNoteCreation(context);
+            }
+          : null,
+      backgroundColor: _isValueSelected ? null : Colors.grey,
+      label: const Text('SAVE NOTE'),
+      icon: const Icon(Icons.add),
     );
   }
 
@@ -315,6 +356,18 @@ class _ParameterScreenState extends State<ParameterScreen> {
         duration: const Duration(seconds: 2),
       ));
     }
+  }
+
+  void _startRecording(BuildContext context) async {
+    Provider.of<BoardController>(context, listen: false)
+        .startRecording(widget.board, widget.parameter, _duration.start);
+
+    Navigator.pop(context);
+    //notify user that recording is started
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('${widget.parameter.name} : recording started!'),
+      duration: const Duration(seconds: 2),
+    ));
   }
 
   void _validateAndDelete(BuildContext context) async {
