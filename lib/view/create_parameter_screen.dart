@@ -166,11 +166,13 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: _editScreen
+        ? FloatingActionButton.extended(
         label: const Text('SAVE EDIT'),
         icon: const Icon(Icons.edit),
         onPressed: _validateAndSave,
-      ),
+      )
+        :null,
     );
   }
 
