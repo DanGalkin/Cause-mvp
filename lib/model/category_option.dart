@@ -1,6 +1,6 @@
 class CategoryOption {
   final String id;
-  final String name;
+  String name;
   // final String? parameterId;
   // final int? orderNumber;
 
@@ -39,6 +39,11 @@ class CategoryOptionsList {
 
   void removeOption(CategoryOption option) {
     list.remove(option);
+  }
+
+  void updateCategoryName(CategoryOption updatedOption) {
+    list.firstWhere((element) => element.id == updatedOption.id).name =
+        updatedOption.name;
   }
 
   CategoryOptionsList.fromMap(map)

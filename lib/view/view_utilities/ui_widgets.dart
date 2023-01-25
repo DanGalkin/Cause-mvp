@@ -126,33 +126,38 @@ class NoteTile extends StatelessWidget {
       children: [
         if (parameter.durationType == DurationType.duration)
           Text(
-            '${DateFormat.yMMMd().add_Hm().format(note.duration!.start)} - ${DateFormat.yMMMd().add_Hm().format(note.duration!.end)}',
+            toContextualDuration(note.duration!),
             style: const TextStyle(
               color: Color(0xFF7B7B7B),
             ),
           ),
         if (parameter.durationType == DurationType.moment)
-          Row(
-            children: [
-              SizedBox(
-                width: 170,
-                child: Text(
-                  DateFormat.yMMMd().add_Hm().format(note.moment!),
-                  style: const TextStyle(
-                    color: Color(0xFF7B7B7B),
+          Expanded(
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 170,
+                  child: Text(
+                    toContextualMoment(note.moment!),
+                    style: const TextStyle(
+                      color: Color(0xFF7B7B7B),
+                    ),
                   ),
                 ),
-              ),
-              Text(
-                parameter.varType != VarType.categorical
-                    ? note.value[parameter.varType.name]['value'].toString()
-                    : note.value[parameter.varType.name]['name'],
-                style: const TextStyle(
-                  color: Color(0xFF7B7B7B),
-                  fontWeight: FontWeight.w600,
+                Expanded(
+                  child: Text(
+                    parameter.varType != VarType.categorical &&
+                            parameter.varType != VarType.ordinal
+                        ? note.value[parameter.varType.name]['value'].toString()
+                        : note.value[parameter.varType.name]['name'],
+                    style: const TextStyle(
+                      color: Color(0xFF7B7B7B),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         IconButton(
           onPressed: () {

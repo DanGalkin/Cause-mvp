@@ -34,6 +34,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
       DateTimeRange(start: DateTime.now(), end: DateTime.now());
   double? _quantity;
   CategoryOption? _selectedCategory;
+  String? _unstructuredText;
 
   late bool _isValueSelected;
 
@@ -45,10 +46,14 @@ class _ParameterScreenState extends State<ParameterScreen> {
   late Note _note;
 
   late TextEditingController quantityController;
+  late TextEditingController textController;
+  late ScrollController scrollController;
 
   @override
   void initState() {
     quantityController = TextEditingController();
+    textController = TextEditingController();
+    scrollController = ScrollController();
 
     _editScreen = widget.noteToEdit != null;
     //set state if creating new note
@@ -77,6 +82,11 @@ class _ParameterScreenState extends State<ParameterScreen> {
       if (_note.varType == VarType.quantitative) {
         _quantity = _note.value['quantitative']['value'].toDouble();
         quantityController.text = _quantity!.toString();
+      }
+
+      if (_note.varType == VarType.unstructured) {
+        _unstructuredText = _note.value['unstructured']['value'];
+        textController.text = _unstructuredText ?? '';
       }
     }
 
@@ -237,10 +247,13 @@ class _ParameterScreenState extends State<ParameterScreen> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Headline('Enter your value in ${param.metric}'),
           TextField(
               controller: quantityController,
               keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                labelText: 'Enter your value in ${param.metric}',
+              ),
               inputFormatters: [
                 TextInputFormatter.withFunction((oldValue, newValue) {
                   final newText = newValue.text;
@@ -267,18 +280,22 @@ class _ParameterScreenState extends State<ParameterScreen> {
               }),
         ],
       );
-    } else if (param.varType == VarType.categorical) {
+    } else if (param.varType == VarType.categorical ||
+        param.varType == VarType.ordinal) {
+      final bool isOrdinal = param.varType == VarType.ordinal;
+      final List<CategoryOption> categories = param.categories!.list;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Headline('Select an option'),
-          if (param.categories!.list.isEmpty)
+          if (categories.isEmpty)
             const Headline(
                 'Oops.. No options has been provided on creation of parameter(((')
           else
-            for (CategoryOption option in param.categories!.list)
+            for (CategoryOption option in categories)
               RadioListTile<String>(
-                title: Text(option.name),
+                title: Text(
+                    '${isOrdinal ? '${(categories.indexOf(option) + 1).toString()}. ' : ''}${option.name}'),
                 value: option.id,
                 groupValue: _selectedCategory?.id,
                 onChanged: ((String? value) => setState(() {
@@ -290,6 +307,39 @@ class _ParameterScreenState extends State<ParameterScreen> {
               )
         ],
       );
+    } else if (param.varType == VarType.unstructured) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Scrollbar(
+            child: TextField(
+                controller: textController,
+                scrollController: scrollController,
+                keyboardType: TextInputType.multiline,
+                minLines: 5,
+                maxLines: 5,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Type your text here...',
+                  alignLabelWithHint: true,
+                ),
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    setState(() {
+                      if (!_isValueSelected) {
+                        _isValueSelected = true;
+                      }
+                      _unstructuredText = value;
+                    });
+                  } else if (_isValueSelected) {
+                    setState(() {
+                      _isValueSelected = false;
+                    });
+                  }
+                }),
+          ),
+        ],
+      );
     } else {
       return Container();
     }
@@ -298,6 +348,8 @@ class _ParameterScreenState extends State<ParameterScreen> {
   @override
   void dispose() {
     quantityController.dispose();
+    textController.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -320,6 +372,16 @@ class _ParameterScreenState extends State<ParameterScreen> {
       case VarType.categorical:
         {
           value = _selectedCategory;
+        }
+        break;
+      case VarType.ordinal:
+        {
+          value = _selectedCategory;
+        }
+        break;
+      case VarType.unstructured:
+        {
+          value = _unstructuredText;
         }
         break;
       default:

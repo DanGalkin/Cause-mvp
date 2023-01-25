@@ -30,6 +30,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
   late TextEditingController nameController;
   late TextEditingController metricController;
   late TextEditingController categoryController;
+  late TextEditingController _categoryEditController;
 
   DurationType _selectedDurationType = DurationType.moment;
   VarType _selectedVarType = VarType.binary;
@@ -48,6 +49,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
     nameController = TextEditingController();
     metricController = TextEditingController();
     categoryController = TextEditingController();
+    _categoryEditController = TextEditingController();
 
     _editScreen = widget.parameter != null ? true : false;
     if (_editScreen) {
@@ -59,7 +61,8 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
       _selectedVarType = _parameter.varType;
       _selectedDurationType = _parameter.durationType;
 
-      if (_parameter.varType == VarType.categorical) {
+      if (_parameter.varType == VarType.categorical ||
+          _parameter.varType == VarType.ordinal) {
         _categoryOptions = _parameter.categories!;
       }
 
@@ -167,12 +170,12 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
         ],
       ),
       floatingActionButton: _editScreen
-        ? FloatingActionButton.extended(
-        label: const Text('SAVE EDIT'),
-        icon: const Icon(Icons.edit),
-        onPressed: _validateAndSave,
-      )
-        :null,
+          ? FloatingActionButton.extended(
+              label: const Text('SAVE EDIT'),
+              icon: const Icon(Icons.edit),
+              onPressed: _validateAndSave,
+            )
+          : null,
     );
   }
 
@@ -242,8 +245,32 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
                 },
         ),
         RadioListTile<VarType>(
+          title: const Text('Ordinal'),
+          value: VarType.ordinal,
+          groupValue: _selectedVarType,
+          onChanged: _selectedDurationType == DurationType.duration
+              ? null
+              : (VarType? value) {
+                  setState(() {
+                    _selectedVarType = value!;
+                  });
+                },
+        ),
+        RadioListTile<VarType>(
           title: const Text('Categorical'),
           value: VarType.categorical,
+          groupValue: _selectedVarType,
+          onChanged: _selectedDurationType == DurationType.duration
+              ? null
+              : (VarType? value) {
+                  setState(() {
+                    _selectedVarType = value!;
+                  });
+                },
+        ),
+        RadioListTile<VarType>(
+          title: const Text('Unstructured'),
+          value: VarType.unstructured,
           groupValue: _selectedVarType,
           onChanged: _selectedDurationType == DurationType.duration
               ? null
@@ -265,6 +292,12 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
           child: const Text(
               'No need for additional properties for binary parameter. It either occured, or not.'),
         );
+      case VarType.unstructured:
+        return Container(
+          alignment: Alignment.centerLeft,
+          child: const Text(
+              'Your input for unstructured parameter will be plain text.'),
+        );
       case VarType.quantitative:
         return Column(children: [
           const Text('Select a metric (kg, ml, pcs, times, etc.)'),
@@ -273,6 +306,8 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
           ),
         ]);
       case VarType.categorical:
+        return _buildCategoryCreator(context);
+      case VarType.ordinal:
         return _buildCategoryCreator(context);
       default:
         return const Text('No need for additional properties.');
@@ -284,6 +319,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
     nameController.dispose();
     metricController.dispose();
     categoryController.dispose();
+    _categoryEditController.dispose();
     super.dispose();
   }
 
@@ -316,18 +352,44 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
               }),
         ],
       ),
-      Column(children: [
-        for (CategoryOption option in _categoryOptions.list)
-          ListTile(
-              title: Text(option.name),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () {
-                  _categoryOptions.removeOption(option);
-                  setState(() {});
-                },
-              ))
-      ]),
+      SizedBox(
+        child: ReorderableListView.builder(
+          buildDefaultDragHandles: false,
+          itemCount: _categoryOptions.list.length,
+          itemBuilder: ((context, index) {
+            final CategoryOption category = _categoryOptions.list[index];
+            String orderNumber = _selectedVarType == VarType.ordinal
+                ? '${(index + 1).toString()}. '
+                : '';
+            return ListTile(
+              key: ValueKey(category.name),
+              title: Text('$orderNumber${category.name}'),
+              trailing: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () => _showCategoryEditDialog(
+                            context, category, _categoryOptions)),
+                    ReorderableDragStartListener(
+                        index: index, child: const Icon(Icons.drag_indicator)),
+                  ]),
+            );
+          }),
+          onReorder: (int oldIndex, int newIndex) {
+            setState(() {
+              if (oldIndex < newIndex) {
+                newIndex -= 1;
+              }
+              //TODO very bad - shouldn't have direct access to the list of _categoryoptions
+              final CategoryOption item =
+                  _categoryOptions.list.removeAt(oldIndex);
+              _categoryOptions.list.insert(newIndex, item);
+            });
+          },
+          shrinkWrap: true,
+        ),
+      )
     ]);
   }
 
@@ -508,6 +570,62 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
         const SizedBox(height: 15),
       ],
     );
+  }
+
+  Future<void> _showCategoryEditDialog(BuildContext context,
+      CategoryOption category, CategoryOptionsList categoryOptions) {
+    _categoryEditController.text = category.name;
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: const Text('Edit category name'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: [
+                    const Text(
+                        'Edit the name of category only in case of mistype or better description.'),
+                    const SizedBox(height: 10),
+                    const Text(
+                        'If you need the whole another category: delete this one and create new.'),
+                    const SizedBox(height: 10),
+                    TextField(
+                      autofocus: true,
+                      controller: _categoryEditController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () async {
+                      bool? validated = await validateUserAction(
+                          context: context,
+                          validationText:
+                              'This will delete the category for all users.');
+                      if (validated == true) {
+                        categoryOptions.removeOption(category);
+                        setState(() {});
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text(
+                      'Delete category',
+                      style: TextStyle(color: Color(0xFFB3261E)),
+                    )),
+                TextButton(
+                    onPressed: () {
+                      category.name = _categoryEditController.text;
+                      setState(() {});
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Save edit'))
+              ]);
+        });
   }
 }
 

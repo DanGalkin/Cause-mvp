@@ -188,6 +188,29 @@ class BoardController extends ChangeNotifier {
             };
           }
           break;
+        case VarType.ordinal:
+          {
+            moment = time;
+            duration = null;
+            noteValue = {
+              'ordinal': {
+                'id': value.id,
+                'name': value.name,
+              }
+            };
+          }
+          break;
+        case VarType.unstructured:
+          {
+            moment = time;
+            duration = null;
+            noteValue = {
+              'unstructured': {
+                'value': value,
+              }
+            };
+          }
+          break;
         default:
           {
             print('Invalid case');

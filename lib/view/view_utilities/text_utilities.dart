@@ -50,11 +50,13 @@ String toContextualDuration(DateTimeRange duration) {
     return 'Yesterday, ${DateFormat.Hm().format(duration.start)} - ${DateFormat.Hm().format(duration.end)}';
   }
 
-  if (duration.start.isSameDate(duration.end)) {
+  if (duration.start.isSameDate(duration.end) &&
+      duration.start.isSameYear(DateTime.now())) {
     return '${DateFormat.MMMd().format(duration.start)}, ${DateFormat.Hm().format(duration.start)} - ${DateFormat.Hm().format(duration.end)}';
   }
 
-  if (duration.start.isSameYear(duration.end)) {
+  if (duration.start.isSameYear(duration.end) &&
+      duration.start.isSameYear(DateTime.now())) {
     return '${DateFormat.MMMd().add_Hm().format(duration.start)} - ${DateFormat.MMMd().add_Hm().format(duration.end)}';
   }
 

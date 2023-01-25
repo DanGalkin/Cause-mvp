@@ -132,9 +132,10 @@ class RecordState {
 
 enum VarType {
   binary,
-  //ordinal,
+  ordinal,
   categorical,
   quantitative,
+  unstructured,
 }
 
 enum DurationType {
