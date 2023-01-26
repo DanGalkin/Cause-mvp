@@ -27,9 +27,9 @@ class CreateParameterScreen extends StatefulWidget {
 
 class _CreateParameterScreenState extends State<CreateParameterScreen> {
   int _step = 0;
-  late TextEditingController nameController;
-  late TextEditingController metricController;
-  late TextEditingController categoryController;
+  late TextEditingController _nameController;
+  late TextEditingController _metricController;
+  late TextEditingController _categoryController;
   late TextEditingController _categoryEditController;
 
   DurationType _selectedDurationType = DurationType.moment;
@@ -46,15 +46,16 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
 
   @override
   void initState() {
-    nameController = TextEditingController();
-    metricController = TextEditingController();
-    categoryController = TextEditingController();
+    _nameController = TextEditingController();
+    _metricController = TextEditingController();
+    _categoryController = TextEditingController();
     _categoryEditController = TextEditingController();
 
+    //set parameter props when editing
     _editScreen = widget.parameter != null ? true : false;
     if (_editScreen) {
       _parameter = widget.parameter!;
-      nameController.text = _parameter.name;
+      _nameController.text = _parameter.name;
       _icon = _parameter.decoration.icon;
       _color = _parameter.decoration.color;
       _showLastNote = _parameter.decoration.showLastNote;
@@ -67,7 +68,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
       }
 
       if (_parameter.varType == VarType.quantitative) {
-        metricController.text = _parameter.metric!;
+        _metricController.text = _parameter.metric!;
       }
     }
 
@@ -110,7 +111,8 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
         },
         controlsBuilder: ((context, details) {
           return _editScreen
-              ? const SizedBox.shrink()
+              ? const SizedBox
+                  .shrink() // no controls when editing: just FAB to SAVE EDIT
               : Row(children: [
                   //magical number 4 - is the last step index - should be refactored
                   details.currentStep != 4
@@ -129,7 +131,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
           Step(
             title: _step < 1
                 ? const Text('Give a name')
-                : Text('Name: ${nameController.text}'),
+                : Text('Name: ${_nameController.text}'),
             content: _buildNameInput(),
           ),
           Step(
@@ -180,7 +182,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
   }
 
   Widget _buildNameInput() {
-    return TextField(controller: nameController);
+    return TextField(controller: _nameController);
   }
 
   Widget _buildDurationTypeInput() {
@@ -203,7 +205,6 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
           onChanged: (DurationType? value) {
             setState(() {
               _selectedDurationType = value!;
-              _selectedVarType = VarType.binary;
             });
           },
         ),
@@ -214,71 +215,55 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
   Widget _buildDataTypeInput() {
     return Column(
       children: [
-        if (_selectedDurationType == DurationType.duration)
-          Container(
-            alignment: Alignment.centerLeft,
-            child: const Text(
-                'If a parameter track a duration it can only have a binary value. I.e. it only occurs or not.'),
-          ),
         RadioListTile<VarType>(
           title: const Text('Binary'),
           value: VarType.binary,
           groupValue: _selectedVarType,
-          onChanged: _selectedDurationType == DurationType.duration
-              ? null
-              : (VarType? value) {
-                  setState(() {
-                    _selectedVarType = value!;
-                  });
-                },
+          onChanged: (VarType? value) {
+            setState(() {
+              _selectedVarType = value!;
+            });
+          },
         ),
         RadioListTile<VarType>(
           title: const Text('Quantitative'),
           value: VarType.quantitative,
           groupValue: _selectedVarType,
-          onChanged: _selectedDurationType == DurationType.duration
-              ? null
-              : (VarType? value) {
-                  setState(() {
-                    _selectedVarType = value!;
-                  });
-                },
+          onChanged: (VarType? value) {
+            setState(() {
+              _selectedVarType = value!;
+            });
+          },
         ),
         RadioListTile<VarType>(
           title: const Text('Ordinal'),
           value: VarType.ordinal,
           groupValue: _selectedVarType,
-          onChanged: _selectedDurationType == DurationType.duration
-              ? null
-              : (VarType? value) {
-                  setState(() {
-                    _selectedVarType = value!;
-                  });
-                },
+          onChanged: (VarType? value) {
+            setState(() {
+              _selectedVarType = value!;
+            });
+          },
         ),
         RadioListTile<VarType>(
           title: const Text('Categorical'),
           value: VarType.categorical,
           groupValue: _selectedVarType,
-          onChanged: _selectedDurationType == DurationType.duration
-              ? null
-              : (VarType? value) {
-                  setState(() {
-                    _selectedVarType = value!;
-                  });
-                },
+          onChanged: (VarType? value) {
+            setState(() {
+              _selectedVarType = value!;
+            });
+          },
         ),
         RadioListTile<VarType>(
           title: const Text('Unstructured'),
           value: VarType.unstructured,
           groupValue: _selectedVarType,
-          onChanged: _selectedDurationType == DurationType.duration
-              ? null
-              : (VarType? value) {
-                  setState(() {
-                    _selectedVarType = value!;
-                  });
-                },
+          onChanged: (VarType? value) {
+            setState(() {
+              _selectedVarType = value!;
+            });
+          },
         ),
       ],
     );
@@ -302,7 +287,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
         return Column(children: [
           const Text('Select a metric (kg, ml, pcs, times, etc.)'),
           TextField(
-            controller: metricController,
+            controller: _metricController,
           ),
         ]);
       case VarType.categorical:
@@ -316,9 +301,9 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
 
   @override
   void dispose() {
-    nameController.dispose();
-    metricController.dispose();
-    categoryController.dispose();
+    _nameController.dispose();
+    _metricController.dispose();
+    _categoryController.dispose();
     _categoryEditController.dispose();
     super.dispose();
   }
@@ -332,7 +317,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
         children: [
           Expanded(
             child: TextField(
-              controller: categoryController,
+              controller: _categoryController,
             ),
           ),
           TextButton(
@@ -341,12 +326,12 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
                 //create category
                 CategoryOption newCategoryOption = CategoryOption(
                   id: nanoid(10),
-                  name: categoryController.text,
+                  name: _categoryController.text,
                 );
                 //add to categories list
                 _categoryOptions.addOption(newCategoryOption);
                 //clear
-                categoryController.clear();
+                _categoryController.clear();
                 //update state to show new category
                 setState(() {});
               }),
@@ -381,7 +366,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
               if (oldIndex < newIndex) {
                 newIndex -= 1;
               }
-              //TODO very bad - shouldn't have direct access to the list of _categoryoptions
+              //TODO bad - shouldn't have direct access to the list of _categoryoptions
               final CategoryOption item =
                   _categoryOptions.list.removeAt(oldIndex);
               _categoryOptions.list.insert(newIndex, item);
@@ -394,14 +379,14 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
   }
 
   void _createNewParameter(BuildContext context) {
-    String paramName = nameController.text;
+    String paramName = _nameController.text;
 
     Provider.of<BoardController>(context, listen: false).createParameter(
         widget.board,
         paramName,
         _selectedDurationType,
         _selectedVarType,
-        metricController.text,
+        _metricController.text,
         _categoryOptions,
         ButtonDecoration(
             color: _color, icon: _icon, showLastNote: _showLastNote));
@@ -423,8 +408,8 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
       Provider.of<BoardController>(context, listen: false).editParameter(
           widget.board,
           _parameter,
-          nameController.text,
-          metricController.text,
+          _nameController.text,
+          _metricController.text,
           _categoryOptions,
           ButtonDecoration(
               color: _color, icon: _icon, showLastNote: _showLastNote));
@@ -432,13 +417,13 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
       Navigator.pop(context);
 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('${nameController.text} : parameter edited!'),
+        content: Text('${_nameController.text} : parameter edited!'),
         duration: const Duration(seconds: 2),
       ));
     }
   }
 
-  void onColorButtonTap(buttonColor) {
+  void _onColorButtonTap(buttonColor) {
     setState(() {
       _color = buttonColor;
     });
@@ -449,27 +434,27 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
       children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           ColorCircleButton(
-            onTap: onColorButtonTap,
+            onTap: _onColorButtonTap,
             color: Colors.grey[200]!,
             selectedColor: _color,
           ),
           ColorCircleButton(
-            onTap: onColorButtonTap,
+            onTap: _onColorButtonTap,
             color: Colors.deepOrange[200]!,
             selectedColor: _color,
           ),
           ColorCircleButton(
-            onTap: onColorButtonTap,
+            onTap: _onColorButtonTap,
             color: Colors.orange[200]!,
             selectedColor: _color,
           ),
           ColorCircleButton(
-            onTap: onColorButtonTap,
+            onTap: _onColorButtonTap,
             color: Colors.lightGreen[200]!,
             selectedColor: _color,
           ),
           ColorCircleButton(
-            onTap: onColorButtonTap,
+            onTap: _onColorButtonTap,
             color: Colors.cyan[200]!,
             selectedColor: _color,
           ),
@@ -477,27 +462,27 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
         const SizedBox(height: 15),
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           ColorCircleButton(
-            onTap: onColorButtonTap,
+            onTap: _onColorButtonTap,
             color: Colors.indigo[200]!,
             selectedColor: _color,
           ),
           ColorCircleButton(
-            onTap: onColorButtonTap,
+            onTap: _onColorButtonTap,
             color: Colors.pink[200]!,
             selectedColor: _color,
           ),
           ColorCircleButton(
-            onTap: onColorButtonTap,
+            onTap: _onColorButtonTap,
             color: Colors.blueGrey[200]!,
             selectedColor: _color,
           ),
           ColorCircleButton(
-            onTap: onColorButtonTap,
+            onTap: _onColorButtonTap,
             color: Colors.yellow[200]!,
             selectedColor: _color,
           ),
           ColorCircleButton(
-            onTap: onColorButtonTap,
+            onTap: _onColorButtonTap,
             color: Colors.purple[200]!,
             selectedColor: _color,
           ),
@@ -629,6 +614,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
   }
 }
 
+//This should be in ui widgets
 class ColorCircleButton extends StatelessWidget {
   const ColorCircleButton({
     super.key,

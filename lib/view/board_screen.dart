@@ -296,13 +296,22 @@ class ParameterButton extends StatelessWidget {
                 children: [
                   IconButton(
                       onPressed: () {
-                        getIt<BoardController>()
-                            .addRecordingNote(board, parameter);
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(
-                              '${parameter.name} : note added and recording stopped.'),
-                          duration: const Duration(seconds: 2),
-                        ));
+                        if (parameter.varType != VarType.binary) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ParameterScreen(
+                                    parameter: parameter, board: board)),
+                          );
+                        } else {
+                          getIt<BoardController>()
+                              .addRecordingNote(board, parameter);
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(
+                                '${parameter.name} : note added and recording stopped.'),
+                            duration: const Duration(seconds: 2),
+                          ));
+                        }
                       },
                       icon: const Icon(Icons.pause_outlined,
                           color: Colors.green)),

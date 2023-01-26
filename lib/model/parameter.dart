@@ -10,8 +10,8 @@ class Parameter {
   VarType varType;
   DurationType durationType;
   String? metric;
-  //Map<int, Map> gradeOptions; - for ordinal vartype
-  CategoryOptionsList? categories;
+  CategoryOptionsList?
+      categories; //for ordinal VarType the order in a list matters
   Map<String, Note> notes;
   ButtonDecoration decoration;
   RecordState recordState;

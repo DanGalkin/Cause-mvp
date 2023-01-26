@@ -40,8 +40,6 @@ class ParameterButtonTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Note? lastNote = parameter.lastNote;
-    bool showLastNote = lastNote != null && parameter.decoration.showLastNote;
     return Container(
         height: 60,
         width: 320,
@@ -125,11 +123,28 @@ class NoteTile extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         if (parameter.durationType == DurationType.duration)
-          Text(
-            toContextualDuration(note.duration!),
-            style: const TextStyle(
-              color: Color(0xFF7B7B7B),
-            ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                toContextualDuration(note.duration!),
+                style: const TextStyle(
+                  color: Color(0xFF7B7B7B),
+                ),
+              ),
+              SizedBox(height: 5),
+              Text(
+                parameter.varType != VarType.categorical &&
+                        parameter.varType != VarType.ordinal
+                    ? note.value[parameter.varType.name]['value'].toString()
+                    : note.value[parameter.varType.name]['name'],
+                style: const TextStyle(
+                  color: Color(0xFF7B7B7B),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         if (parameter.durationType == DurationType.moment)
           Expanded(

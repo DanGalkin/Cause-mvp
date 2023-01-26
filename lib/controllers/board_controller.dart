@@ -15,7 +15,7 @@ class BoardController extends ChangeNotifier {
   final services = getIt<BoardServices>();
   final fbServices = getIt<FirebaseServices>();
 
-  //THERE ARE DIRECT CONTROLLER - FBSERVICES METHODS
+  //THERE IS DIRECT CONTROLLER - FBSERVICES METHODS
   Map<String, Board> _boards = {};
   Map<String, dynamic> _boardSubscriptions = {};
   Map<String, Board> get boards => _boards;
@@ -111,7 +111,7 @@ class BoardController extends ChangeNotifier {
     await fbServices.updateBoard(board.id, board.toMap());
   }
 
-  void editParameter(
+  Future<void> editParameter(
       Board board,
       Parameter? parameter,
       String newName,
@@ -150,73 +150,58 @@ class BoardController extends ChangeNotifier {
     Map<String, Map<String, dynamic>> noteValue = {};
     DateTime? moment;
     DateTimeRange? duration;
-    if (durationType == DurationType.duration) {
-      moment = null;
-      duration = time;
-      noteValue = {
-        'binary': {'value': true}
-      };
-    } else {
-      switch (varType) {
-        case VarType.binary:
-          {
-            moment = time;
-            duration = null;
-            noteValue = {
-              'binary': {'value': true}
-            };
-          }
-          break;
-        case VarType.quantitative:
-          {
-            moment = time;
-            duration = null;
-            noteValue = {
-              'quantitative': {'value': value, 'metric': parameter.metric}
-            };
-          }
-          break;
-        case VarType.categorical:
-          {
-            moment = time;
-            duration = null;
-            noteValue = {
-              'categorical': {
-                'id': value.id,
-                'name': value.name,
-              }
-            };
-          }
-          break;
-        case VarType.ordinal:
-          {
-            moment = time;
-            duration = null;
-            noteValue = {
-              'ordinal': {
-                'id': value.id,
-                'name': value.name,
-              }
-            };
-          }
-          break;
-        case VarType.unstructured:
-          {
-            moment = time;
-            duration = null;
-            noteValue = {
-              'unstructured': {
-                'value': value,
-              }
-            };
-          }
-          break;
-        default:
-          {
-            print('Invalid case');
-          }
-          break;
-      }
+
+    moment = durationType == DurationType.duration ? null : time;
+    duration = durationType == DurationType.duration ? time : null;
+    switch (varType) {
+      case VarType.binary:
+        {
+          noteValue = {
+            'binary': {'value': true}
+          };
+        }
+        break;
+      case VarType.quantitative:
+        {
+          noteValue = {
+            'quantitative': {'value': value, 'metric': parameter.metric}
+          };
+        }
+        break;
+      case VarType.categorical:
+        {
+          noteValue = {
+            'categorical': {
+              'id': value.id,
+              'name': value.name,
+            }
+          };
+        }
+        break;
+      case VarType.ordinal:
+        {
+          noteValue = {
+            'ordinal': {
+              'id': value.id,
+              'name': value.name,
+            }
+          };
+        }
+        break;
+      case VarType.unstructured:
+        {
+          noteValue = {
+            'unstructured': {
+              'value': value,
+            }
+          };
+        }
+        break;
+      default:
+        {
+          print('Invalid case');
+        }
+        break;
     }
     Note newNote = Note(
       id: newNoteId,
@@ -232,59 +217,66 @@ class BoardController extends ChangeNotifier {
     fbServices.updateBoard(board.id, board.toMap());
   }
 
+  // it almost copies addNote - should be refactored
   void editNote(
       Board board, Parameter parameter, Note note, var time, var value) {
-    final String newNoteId = nanoid(10);
-    final DateTime nowTime = DateTime.now();
     final DurationType durationType = parameter.durationType;
     final VarType varType = parameter.varType;
     Map<String, Map<String, dynamic>> noteValue = {};
     DateTime? moment;
     DateTimeRange? duration;
-    if (durationType == DurationType.duration) {
-      moment = null;
-      duration = time;
-      noteValue = {
-        'binary': {'value': true}
-      };
-    } else {
-      switch (varType) {
-        case VarType.binary:
-          {
-            moment = time;
-            duration = null;
-            noteValue = {
-              'binary': {'value': true}
-            };
-          }
-          break;
-        case VarType.quantitative:
-          {
-            moment = time;
-            duration = null;
-            noteValue = {
-              'quantitative': {'value': value, 'metric': parameter.metric}
-            };
-          }
-          break;
-        case VarType.categorical:
-          {
-            moment = time;
-            duration = null;
-            noteValue = {
-              'categorical': {
-                'id': value.id,
-                'name': value.name,
-              }
-            };
-          }
-          break;
-        default:
-          {
-            print('Invalid case');
-          }
-          break;
-      }
+
+    moment = durationType == DurationType.duration ? null : time;
+    duration = durationType == DurationType.duration ? time : null;
+    switch (varType) {
+      case VarType.binary:
+        {
+          noteValue = {
+            'binary': {'value': true}
+          };
+        }
+        break;
+      case VarType.quantitative:
+        {
+          noteValue = {
+            'quantitative': {'value': value, 'metric': parameter.metric}
+          };
+        }
+        break;
+      case VarType.categorical:
+        {
+          noteValue = {
+            'categorical': {
+              'id': value.id,
+              'name': value.name,
+            }
+          };
+        }
+        break;
+      case VarType.ordinal:
+        {
+          noteValue = {
+            'ordinal': {
+              'id': value.id,
+              'name': value.name,
+            }
+          };
+        }
+        break;
+      case VarType.unstructured:
+        {
+          noteValue = {
+            'unstructured': {
+              'value': value,
+            }
+          };
+        }
+        break;
+      default:
+        {
+          print('Invalid case');
+        }
+        break;
     }
     Note updatedNote = Note(
       id: note.id,

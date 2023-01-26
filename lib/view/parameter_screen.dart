@@ -45,17 +45,18 @@ class _ParameterScreenState extends State<ParameterScreen> {
 
   late Note _note;
 
-  late TextEditingController quantityController;
-  late TextEditingController textController;
-  late ScrollController scrollController;
+  late TextEditingController _quantityController;
+  late TextEditingController _textController;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
-    quantityController = TextEditingController();
-    textController = TextEditingController();
-    scrollController = ScrollController();
+    _quantityController = TextEditingController();
+    _textController = TextEditingController();
+    _scrollController = ScrollController();
 
     _editScreen = widget.noteToEdit != null;
+
     //set state if creating new note
     if (!_editScreen) {
       _isValueSelected =
@@ -81,12 +82,12 @@ class _ParameterScreenState extends State<ParameterScreen> {
 
       if (_note.varType == VarType.quantitative) {
         _quantity = _note.value['quantitative']['value'].toDouble();
-        quantityController.text = _quantity!.toString();
+        _quantityController.text = _quantity!.toString();
       }
 
       if (_note.varType == VarType.unstructured) {
         _unstructuredText = _note.value['unstructured']['value'];
-        textController.text = _unstructuredText ?? '';
+        _textController.text = _unstructuredText ?? '';
       }
     }
 
@@ -239,8 +240,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
 
   Widget _buildValueSelector() {
     final Parameter param = widget.parameter;
-    if (param.varType == VarType.binary ||
-        param.durationType == DurationType.duration) {
+    if (param.varType == VarType.binary) {
       return const Headline(
           'The default binary value is true. The fact of event occurance will be saved.');
     } else if (param.varType == VarType.quantitative) {
@@ -248,7 +248,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextField(
-              controller: quantityController,
+              controller: _quantityController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
@@ -313,8 +313,8 @@ class _ParameterScreenState extends State<ParameterScreen> {
         children: [
           Scrollbar(
             child: TextField(
-                controller: textController,
-                scrollController: scrollController,
+                controller: _textController,
+                scrollController: _scrollController,
                 keyboardType: TextInputType.multiline,
                 minLines: 5,
                 maxLines: 5,
@@ -347,9 +347,9 @@ class _ParameterScreenState extends State<ParameterScreen> {
 
   @override
   void dispose() {
-    quantityController.dispose();
-    textController.dispose();
-    scrollController.dispose();
+    _quantityController.dispose();
+    _textController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -395,18 +395,18 @@ class _ParameterScreenState extends State<ParameterScreen> {
       Provider.of<BoardController>(context, listen: false)
           .addNote(widget.board, widget.parameter, time, value);
 
+      //if parameter has been recorded, cancel the record
+      if (_isRecording) {
+        Provider.of<BoardController>(context, listen: false)
+            .cancelRecording(widget.board, widget.parameter);
+      }
+
       Navigator.pop(context);
       //notify user that note is created
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('${widget.parameter.name} : new note added!'),
         duration: const Duration(seconds: 2),
       ));
-
-      //if parameter has been recorded, cancel the record
-      if (_isRecording) {
-        Provider.of<BoardController>(context, listen: false)
-            .cancelRecording(widget.board, widget.parameter);
-      }
     } else {
       Provider.of<BoardController>(context, listen: false)
           .editNote(widget.board, widget.parameter, _note, time, value);
