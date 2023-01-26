@@ -80,6 +80,10 @@ class _ParameterScreenState extends State<ParameterScreen> {
         _selectedCategory = CategoryOption.fromMap(_note.value['categorical']);
       }
 
+      if (_note.varType == VarType.ordinal) {
+        _selectedCategory = CategoryOption.fromMap(_note.value['ordinal']);
+      }
+
       if (_note.varType == VarType.quantitative) {
         _quantity = _note.value['quantitative']['value'].toDouble();
         _quantityController.text = _quantity!.toString();
