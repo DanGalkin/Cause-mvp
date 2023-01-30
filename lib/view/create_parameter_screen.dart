@@ -31,6 +31,9 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
   late TextEditingController _metricController;
   late TextEditingController _categoryController;
   late TextEditingController _categoryEditController;
+  late TextEditingController _descriptionController;
+
+  late ScrollController _descriptionScrollController;
 
   DurationType _selectedDurationType = DurationType.moment;
   VarType _selectedVarType = VarType.binary;
@@ -47,9 +50,12 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
   @override
   void initState() {
     _nameController = TextEditingController();
+    _descriptionController = TextEditingController();
     _metricController = TextEditingController();
     _categoryController = TextEditingController();
     _categoryEditController = TextEditingController();
+
+    _descriptionScrollController = ScrollController();
 
     //set parameter props when editing
     _editScreen = widget.parameter != null ? true : false;
@@ -77,6 +83,50 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<Step> steps = [
+      Step(
+        title: _step < 1
+            ? const Text('Give a name and description')
+            : Text('Name: ${_nameController.text}'),
+        content: _buildNameInput(),
+      ),
+      Step(
+          title: _step < 2
+              ? const Text('Select Duration type')
+              : Text('Duration type: ${_selectedDurationType.name}'),
+          content: _editScreen
+              ? Container(
+                  alignment: Alignment.centerLeft,
+                  child: const Text(
+                    'Duration type is fixed. You cannot change it yet.',
+                    textAlign: TextAlign.left,
+                  ),
+                )
+              : _buildDurationTypeInput()),
+      Step(
+        title: _step < 3
+            ? const Text('Select Data type')
+            : Text('Data type: ${_selectedVarType.name}'),
+        content: _editScreen
+            ? Container(
+                alignment: Alignment.centerLeft,
+                child: const Text(
+                  'Data type is fixed. You cannot change it yet.',
+                  textAlign: TextAlign.left,
+                ),
+              )
+            : _buildDataTypeInput(),
+      ),
+      Step(
+        title: const Text('Select Data properties'),
+        content: _buildDataPropsInput(context),
+      ),
+      Step(
+        title: const Text('Choose decoration'),
+        content: _buildDecorationInput(context),
+      ),
+    ];
+
     return Scaffold(
       appBar: AppBar(
           title: Text(_editScreen
@@ -114,8 +164,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
               ? const SizedBox
                   .shrink() // no controls when editing: just FAB to SAVE EDIT
               : Row(children: [
-                  //magical number 4 - is the last step index - should be refactored
-                  details.currentStep != 4
+                  details.currentStep != (steps.length - 1)
                       ? ElevatedButton(
                           onPressed: details.onStepContinue,
                           child: const Text('NEXT'),
@@ -127,49 +176,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
                           child: const Text('CREATE & CONTINUE'))
                 ]);
         }),
-        steps: [
-          Step(
-            title: _step < 1
-                ? const Text('Give a name')
-                : Text('Name: ${_nameController.text}'),
-            content: _buildNameInput(),
-          ),
-          Step(
-              title: _step < 2
-                  ? const Text('Select Duration type')
-                  : Text('Duration type: ${_selectedDurationType.name}'),
-              content: _editScreen
-                  ? Container(
-                      alignment: Alignment.centerLeft,
-                      child: const Text(
-                        'Duration type is fixed. You cannot change it yet.',
-                        textAlign: TextAlign.left,
-                      ),
-                    )
-                  : _buildDurationTypeInput()),
-          Step(
-            title: _step < 3
-                ? const Text('Select Data type')
-                : Text('Data type: ${_selectedVarType.name}'),
-            content: _editScreen
-                ? Container(
-                    alignment: Alignment.centerLeft,
-                    child: const Text(
-                      'Data type is fixed. You cannot change it yet.',
-                      textAlign: TextAlign.left,
-                    ),
-                  )
-                : _buildDataTypeInput(),
-          ),
-          Step(
-            title: const Text('Select Data properties'),
-            content: _buildDataPropsInput(context),
-          ),
-          Step(
-            title: const Text('Choose decoration'),
-            content: _buildDecorationInput(context),
-          ),
-        ],
+        steps: steps,
       ),
       floatingActionButton: _editScreen
           ? FloatingActionButton.extended(
@@ -182,7 +189,32 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
   }
 
   Widget _buildNameInput() {
-    return TextField(controller: _nameController);
+    return Column(
+      children: [
+        const SizedBox(height: 5),
+        TextField(
+          controller: _nameController,
+          decoration: const InputDecoration(
+            labelText: 'Name',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 15),
+        TextField(
+          controller: _descriptionController,
+          scrollController: _descriptionScrollController,
+          keyboardType: TextInputType.multiline,
+          minLines: 2,
+          maxLines: 2,
+          decoration: const InputDecoration(
+            labelText: 'Description (optional)',
+            border: OutlineInputBorder(),
+            alignLabelWithHint: true,
+          ),
+        ),
+        const SizedBox(height: 15),
+      ],
+    );
   }
 
   Widget _buildDurationTypeInput() {
@@ -272,23 +304,38 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
   Widget _buildDataPropsInput(BuildContext context) {
     switch (_selectedVarType) {
       case VarType.binary:
-        return Container(
-          alignment: Alignment.centerLeft,
-          child: const Text(
-              'No need for additional properties for binary parameter. It either occured, or not.'),
+        return Column(
+          children: [
+            Container(
+              alignment: Alignment.centerLeft,
+              child: const Text(
+                  'No need for additional properties for binary parameter. It either occured, or not.'),
+            ),
+            const SizedBox(height: 15),
+          ],
         );
       case VarType.unstructured:
-        return Container(
-          alignment: Alignment.centerLeft,
-          child: const Text(
-              'Your input for unstructured parameter will be plain text.'),
+        return Column(
+          children: [
+            Container(
+              alignment: Alignment.centerLeft,
+              child: const Text(
+                  'Your input for unstructured parameter will be plain text.'),
+            ),
+            const SizedBox(height: 15),
+          ],
         );
       case VarType.quantitative:
         return Column(children: [
-          const Text('Select a metric (kg, ml, pcs, times, etc.)'),
+          const SizedBox(height: 5),
           TextField(
             controller: _metricController,
+            decoration: const InputDecoration(
+              labelText: 'Select a metric (kg, ml, pcs, times, etc.)',
+              border: OutlineInputBorder(),
+            ),
           ),
+          const SizedBox(height: 15),
         ]);
       case VarType.categorical:
         return _buildCategoryCreator(context);
@@ -305,6 +352,9 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
     _metricController.dispose();
     _categoryController.dispose();
     _categoryEditController.dispose();
+    _descriptionController.dispose();
+
+    _descriptionScrollController.dispose();
     super.dispose();
   }
 
@@ -313,11 +363,16 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
       Container(
           alignment: Alignment.centerLeft,
           child: const Text('Create categories for your parameter:')),
+      const SizedBox(height: 15),
       Row(
         children: [
           Expanded(
             child: TextField(
               controller: _categoryController,
+              decoration: const InputDecoration(
+                labelText: 'Type new and click `+ Add`',
+                border: OutlineInputBorder(),
+              ),
             ),
           ),
           TextButton(
@@ -374,7 +429,8 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
           },
           shrinkWrap: true,
         ),
-      )
+      ),
+      const SizedBox(height: 15),
     ]);
   }
 
@@ -388,6 +444,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
         _selectedVarType,
         _metricController.text,
         _categoryOptions,
+        _descriptionController.text,
         ButtonDecoration(
             color: _color, icon: _icon, showLastNote: _showLastNote));
 
@@ -411,6 +468,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
           _nameController.text,
           _metricController.text,
           _categoryOptions,
+          _descriptionController.text,
           ButtonDecoration(
               color: _color, icon: _icon, showLastNote: _showLastNote));
 

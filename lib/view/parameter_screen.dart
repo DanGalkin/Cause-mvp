@@ -101,11 +101,27 @@ class _ParameterScreenState extends State<ParameterScreen> {
   @override
   Widget build(BuildContext context) {
     final Parameter parameter = widget.parameter;
+    final bool hasDescription = parameter.description != '' ? true : false;
 
     return Scaffold(
       appBar: AppBar(
           title: Text(_editScreen ? 'Edit note' : 'Enter new note'),
           actions: [
+            IconButton(
+              icon: const Icon(Icons.info_outlined),
+              onPressed: hasDescription
+                  ? () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                            title: Text('${parameter.name} : description'),
+                            content: SingleChildScrollView(
+                                child: Text(parameter.description))),
+                        barrierDismissible: true,
+                      );
+                    }
+                  : null,
+            ),
             IconButton(
               icon: const Icon(Icons.view_list),
               onPressed: () {

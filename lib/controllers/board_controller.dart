@@ -94,6 +94,7 @@ class BoardController extends ChangeNotifier {
       VarType varType,
       String? metric,
       CategoryOptionsList? categories,
+      String description,
       ButtonDecoration decoration) async {
     Parameter newParameter = Parameter(
       id: nanoid(10),
@@ -106,6 +107,7 @@ class BoardController extends ChangeNotifier {
       categories: categories,
       notes: {},
       decoration: decoration,
+      description: description,
     );
     board.params[newParameter.id] = newParameter;
     await fbServices.updateBoard(board.id, board.toMap());
@@ -117,6 +119,7 @@ class BoardController extends ChangeNotifier {
       String newName,
       String? newMetric,
       CategoryOptionsList? newCategories,
+      String newDescription,
       ButtonDecoration newDecoration) async {
     if (parameter != null) {
       Parameter updatedParameter = Parameter(
@@ -130,6 +133,7 @@ class BoardController extends ChangeNotifier {
         categories: newCategories,
         notes: parameter.notes,
         decoration: newDecoration,
+        description: newDescription,
       );
       board.params[parameter.id] = updatedParameter;
       await fbServices.updateBoard(board.id, board.toMap());

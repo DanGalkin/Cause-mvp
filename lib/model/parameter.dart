@@ -15,6 +15,7 @@ class Parameter {
   Map<String, Note> notes;
   ButtonDecoration decoration;
   RecordState recordState;
+  String description;
 
   Parameter({
     required this.id,
@@ -28,6 +29,7 @@ class Parameter {
     required this.notes,
     required this.decoration,
     this.recordState = const RecordState(),
+    this.description = '',
   });
 
   List<Note> get notesOrderedByTime {
@@ -86,7 +88,8 @@ class Parameter {
         decoration = ButtonDecoration.fromMap(map['decoration']),
         recordState = map.containsKey('recordState')
             ? RecordState.fromMap(map['recordState'])
-            : const RecordState();
+            : const RecordState(),
+        description = map.containsKey('description') ? map['description'] : '';
 
   Map toMap() {
     return {
@@ -101,6 +104,7 @@ class Parameter {
       'notes': notes.map((id, note) => MapEntry(id, note.toMap())),
       'decoration': decoration.toMap(),
       'recordState': recordState.toMap(),
+      'description': description,
     };
   }
 }
