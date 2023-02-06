@@ -6,8 +6,6 @@ import '../parameter_screen.dart';
 
 import './text_utilities.dart';
 
-import 'package:intl/intl.dart';
-
 class Headline extends StatelessWidget {
   const Headline(this.text, {super.key});
   final String text;
@@ -31,8 +29,85 @@ class Headline extends StatelessWidget {
   }
 }
 
-class ParameterButtonTitle extends StatelessWidget {
-  const ParameterButtonTitle({
+class ParameterButtonTemplate extends StatelessWidget {
+  const ParameterButtonTemplate({
+    super.key,
+    required this.parameter,
+    this.onTap,
+    this.subtitle,
+    this.trailing,
+  });
+  final Parameter parameter;
+  final VoidCallback? onTap;
+  final Widget? subtitle;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 60,
+        width: 320,
+        decoration: BoxDecoration(
+          color: parameter.decoration.color,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding: const EdgeInsets.fromLTRB(13, 5, 5, 5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              alignment: Alignment.center,
+              width: 35,
+              height: 35,
+              child: Text(
+                parameter.decoration.icon,
+                style: const TextStyle(
+                  fontSize: 25,
+                ),
+              ),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 30,
+                    child: FittedBox(
+                      //fit: BoxFit.fitWidth,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        parameter.name,
+                        textAlign: TextAlign.start,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                  //show Last note, if this decoration option is on and parameter is not recorded
+                  if (subtitle != null)
+                    Flexible(
+                      child: FittedBox(
+                          alignment: Alignment.centerLeft, child: subtitle),
+                    ),
+                ],
+              ),
+            ),
+            trailing != null ? trailing! : const SizedBox(width: 48),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ParameterTitle extends StatelessWidget {
+  const ParameterTitle({
     super.key,
     required this.parameter,
   });
@@ -40,69 +115,9 @@ class ParameterButtonTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        height: 60,
-        width: 320,
-        decoration: BoxDecoration(
-          color: parameter.decoration.color,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(13, 5, 5, 5),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                alignment: Alignment.center,
-                width: 35,
-                height: 35,
-                child: Text(
-                  parameter.decoration.icon,
-                  style: const TextStyle(
-                    fontSize: 25,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: 30,
-                      child: FittedBox(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          parameter.name,
-                          textAlign: TextAlign.start,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-                    // if (showLastNote)
-                    //   Flexible(
-                    //     child: FittedBox(
-                    //       alignment: Alignment.centerLeft,
-                    //       child: Text(
-                    //         getLastNoteString(lastNote),
-                    //         style: const TextStyle(
-                    //           fontSize: 13,
-                    //           color: Color(0xFF7B7B7B),
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 48),
-            ],
-          ),
-        ));
+    return ParameterButtonTemplate(
+      parameter: parameter,
+    );
   }
 }
 

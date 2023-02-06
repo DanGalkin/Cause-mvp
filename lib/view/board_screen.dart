@@ -22,6 +22,8 @@ import '../../model/note.dart';
 
 import 'package:intl/intl.dart';
 
+import 'view_utilities/ui_widgets.dart';
+
 class BoardScreen extends StatelessWidget {
   final Board board;
   const BoardScreen({Key? key, required this.board}) : super(key: key);
@@ -193,9 +195,94 @@ class ParameterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget? trailing = parameter.durationType == DurationType.duration &&
+            parameter.recordState.recording == false
+        ? IconButton(
+            onPressed: () {
+              getIt<BoardController>().startRecording(board, parameter);
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('${parameter.name} : recording has started!'),
+                duration: const Duration(seconds: 2),
+              ));
+            },
+            icon: const Icon(Icons.play_arrow_outlined, color: Colors.green))
+        : parameter.durationType == DurationType.duration &&
+                parameter.recordState.recording == true
+            ? Row(
+                children: [
+                  IconButton(
+                      onPressed: () {
+                        if (parameter.varType != VarType.binary) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ParameterScreen(
+                                    parameter: parameter, board: board)),
+                          );
+                        } else {
+                          getIt<BoardController>()
+                              .addRecordingNote(board, parameter);
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(
+                                '${parameter.name} : note added and recording stopped.'),
+                            duration: const Duration(seconds: 2),
+                          ));
+                        }
+                      },
+                      icon: const Icon(Icons.pause_outlined,
+                          color: Colors.green)),
+                  IconButton(
+                      onPressed: () {
+                        getIt<BoardController>()
+                            .cancelRecording(board, parameter);
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                              '${parameter.name} : recording was cancelled!'),
+                          duration: const Duration(seconds: 2),
+                        ));
+                      },
+                      icon:
+                          const Icon(Icons.cancel_outlined, color: Colors.red)),
+                ],
+              )
+            : null;
+
     Note? lastNote = parameter.lastNote;
     bool showLastNote = lastNote != null && parameter.decoration.showLastNote;
-    return GestureDetector(
+
+    Widget? subtitle = showLastNote && parameter.recordState.recording == false
+        ? Text(
+            getLastNoteString(lastNote),
+            style: const TextStyle(
+              fontSize: 13,
+              color: Color(0xFF7B7B7B),
+            ),
+          )
+        : parameter.recordState.recording == true
+            ? Text(
+                showStartOfRecording(parameter),
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF7B7B7B),
+                ),
+              )
+            : null;
+
+    return ParameterButtonTemplate(
+      parameter: parameter,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  ParameterScreen(parameter: parameter, board: board)),
+        );
+      },
+      subtitle: subtitle,
+      trailing: trailing,
+    );
+
+    GestureDetector(
       onTap: () {
         Navigator.push(
           context,

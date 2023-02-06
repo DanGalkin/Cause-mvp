@@ -2,6 +2,7 @@ import 'package:cause_flutter_mvp/view/view_utilities/action_validation_utilitie
 
 import '../model/category_option.dart';
 import '../view/view_utilities/input_validation_utilities.dart';
+import 'chart_screen.dart';
 import './view_utilities/ui_widgets.dart';
 import './view_utilities/picker_widgets.dart';
 
@@ -123,6 +124,16 @@ class _ParameterScreenState extends State<ParameterScreen> {
                   : null,
             ),
             IconButton(
+              icon: const Icon(Icons.insights),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            ChartScreen(parameter: parameter)));
+              },
+            ),
+            IconButton(
               icon: const Icon(Icons.view_list),
               onPressed: () {
                 Navigator.push(
@@ -141,7 +152,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
             width: 320,
             child: Column(
               children: [
-                ParameterButtonTitle(parameter: parameter),
+                ParameterTitle(parameter: parameter),
                 const SizedBox(height: 25),
                 _buildTimeSelector(),
                 const SizedBox(height: 25),
