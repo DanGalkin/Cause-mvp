@@ -466,3 +466,43 @@ Future<DateTime> _getTimeSelection(
     return initialDateTime;
   }
 }
+
+class TickFrequencyPicker extends StatelessWidget {
+  const TickFrequencyPicker({
+    super.key,
+    required this.selectedTickFrequency,
+    required this.onChanged,
+  });
+
+  final double selectedTickFrequency;
+  final void Function(double?) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 20),
+        const Headline('Select scale'),
+        RadioListTile<double>(
+          title: const Text('1 day'),
+          value: 1,
+          groupValue: selectedTickFrequency,
+          onChanged: onChanged,
+        ),
+        RadioListTile<double>(
+          title: const Text('6 hours'),
+          value: 4,
+          groupValue: selectedTickFrequency,
+          onChanged: onChanged,
+        ),
+        RadioListTile<double>(
+          title: const Text('1 hour'),
+          value: 24,
+          groupValue: selectedTickFrequency,
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+}

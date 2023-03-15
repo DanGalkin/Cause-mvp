@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import './view_utilities/ui_widgets.dart';
+import './parameter_picker.dart';
 
 import '../services/analytics_utilities/export_csv.dart';
 
@@ -57,6 +58,19 @@ class AnalyticsScreen extends StatelessWidget {
                 onPressed: () {
                   _exportData(board);
                 }),
+            const SizedBox(height: 15),
+            ToolButton(
+              title: '2-parameter chart',
+              icon: const Icon(Icons.insights),
+              description:
+                  'Get a sense of correlation with the chart of 2 parameters of your choice.',
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ParameterPicker()));
+              }, //show param picker and then make a graph
+            ),
           ],
         ),
       ),

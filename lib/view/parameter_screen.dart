@@ -130,7 +130,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
-                            ChartScreen(parameter: parameter)));
+                            ChartScreen(parameters: [parameter])));
               },
             ),
             IconButton(

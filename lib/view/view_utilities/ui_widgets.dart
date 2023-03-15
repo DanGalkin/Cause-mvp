@@ -106,6 +106,28 @@ class ParameterButtonTemplate extends StatelessWidget {
   }
 }
 
+class ChartLabel extends StatelessWidget {
+  const ChartLabel({required this.parameter, this.onTap, super.key});
+
+  final Parameter parameter;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(3),
+          height: 20,
+          decoration: BoxDecoration(
+            color: parameter.decoration.color,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: Text(parameter.name, style: const TextStyle(fontSize: 12)),
+        ));
+  }
+}
+
 class ParameterTitle extends StatelessWidget {
   const ParameterTitle({
     super.key,
@@ -118,6 +140,23 @@ class ParameterTitle extends StatelessWidget {
     return ParameterButtonTemplate(
       parameter: parameter,
     );
+  }
+}
+
+class RemovableParameterTitle extends StatelessWidget {
+  const RemovableParameterTitle(
+      {super.key, required this.parameter, required this.onRemove});
+
+  final Parameter parameter;
+  final void Function(Parameter parameter) onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return ParameterButtonTemplate(
+        parameter: parameter,
+        trailing: IconButton(
+            icon: const Icon(Icons.delete_outlined, color: Color(0xFFFE4A49)),
+            onPressed: () => onRemove(parameter)));
   }
 }
 
