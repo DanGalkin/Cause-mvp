@@ -51,6 +51,15 @@ class Parameter {
     return orderedNoteList.isNotEmpty ? orderedNoteList.first : null;
   }
 
+  Note? get firstNote {
+    List<Note> orderedNoteList = notesOrderedByTime;
+    return orderedNoteList.isNotEmpty ? orderedNoteList.last : null;
+  }
+
+  bool get hasEvents {
+    return notes.isNotEmpty;
+  }
+
   // Parameter.fromModel(Model model)
   //     : id = model.id,
   //       createdTime =

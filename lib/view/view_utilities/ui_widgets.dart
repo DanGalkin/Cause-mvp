@@ -254,13 +254,15 @@ class ToolButton extends StatelessWidget {
     required this.title,
     required this.icon,
     required this.onPressed,
-    this.description = '',
+    this.popupDescription,
+    this.popupTitle,
     super.key,
   });
   final String title;
   final Icon icon;
   final VoidCallback onPressed;
-  final String description;
+  final Widget? popupDescription;
+  final Widget? popupTitle;
 
   Future<void> _showDescription(BuildContext context) async {
     return showDialog<void>(
@@ -268,8 +270,8 @@ class ToolButton extends StatelessWidget {
         barrierDismissible: true,
         builder: (BuildContext context) {
           return AlertDialog(
-              title: Text(title),
-              content: Text(description),
+              title: popupTitle ?? Text(title),
+              content: popupDescription,
               actions: [
                 TextButton(
                     onPressed: () {
@@ -313,7 +315,7 @@ class ToolButton extends StatelessWidget {
                       ),
                     ],
                   ),
-                  if (description.isNotEmpty)
+                  if (popupDescription != null)
                     IconButton(
                       icon: const Icon(Icons.info),
                       onPressed: () {

@@ -8,6 +8,7 @@ import './parameter_picker.dart';
 import '../services/analytics_utilities/export_csv.dart';
 
 import '../model/board.dart';
+import 'parameter_picker_correlation.dart';
 
 class AnalyticsScreen extends StatelessWidget {
   const AnalyticsScreen({required this.board, super.key});
@@ -24,52 +25,120 @@ class AnalyticsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // leading: IconButton(
-        //     icon: const Icon(Icons.arrow_back),
-        //     onPressed: () {
-        //       Navigator.pop(context);
-        //     }),
         title: const Text('Analytics'),
       ),
       body: Center(
         child: Column(
           children: [
             const SizedBox(height: 15),
-
-            /// correlation button screen
-            // ToolButton(
-            //   title: 'Correlation: day-day',
-            //   icon: const Icon(Icons.backup_table),
-            //   description:
-            //       'This tool calculates 2x2 contingency matrix of days selected parameters has or has not occured. It helps understanding pattern of relation. Also, phi coefficient is calculated giving a sense of strength of relation.',
-            //   onPressed: () {
-            //     Navigator.push(
-            //         context,
-            //         MaterialPageRoute(
-            //             builder: (context) => const CorrelationDDScreen()));
-            //   },
-            // ),
-            // const SizedBox(height: 15),
             ToolButton(
                 title: 'Export Data',
                 icon: const Icon(Icons.share),
-                description:
-                    'Export your gathered data in a simple csv format so you can play with it or share (with a coach or a doctor)',
+                popupDescription: const Text(
+                    'Export your gathered data in a simple csv format so you can play with it or share (with a coach or a doctor)'),
                 onPressed: () {
                   _exportData(board);
                 }),
             const SizedBox(height: 15),
             ToolButton(
               title: '2-parameter chart',
-              icon: const Icon(Icons.insights),
-              description:
-                  'Get a sense of correlation with the chart of 2 parameters of your choice.',
+              icon: const Icon(Icons.science_outlined, color: Colors.red),
+              popupDescription: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          WidgetSpan(
+                            child:
+                                Icon(Icons.science_outlined, color: Colors.red),
+                          ),
+                          TextSpan(text: " Experimental "),
+                          WidgetSpan(
+                            child:
+                                Icon(Icons.science_outlined, color: Colors.red),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 15),
+                    Text(
+                        'Get a sense of correlation with the chart of 2 parameters of your choice.'),
+                    // SizedBox(height: 15),
+                    // Text.rich(
+                    //   TextSpan(
+                    //     children: [
+                    //       TextSpan(
+                    //           text: "More instructions under ",
+                    //           style: TextStyle(color: Colors.black)),
+                    //       WidgetSpan(
+                    //         child: Icon(Icons.info),
+                    //       ),
+                    //       TextSpan(
+                    //           text: " in the section.",
+                    //           style: TextStyle(color: Colors.black)),
+                    //     ],
+                    //   ),
+                    // ),
+                  ]),
               onPressed: () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => const ParameterPicker()));
               }, //show param picker and then make a graph
+            ),
+            const SizedBox(height: 15),
+            ToolButton(
+              title: 'Correlation',
+              icon: const Icon(Icons.science_outlined, color: Colors.red),
+              popupDescription: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          WidgetSpan(
+                            child:
+                                Icon(Icons.science_outlined, color: Colors.red),
+                          ),
+                          TextSpan(text: " Experimental "),
+                          WidgetSpan(
+                            child:
+                                Icon(Icons.science_outlined, color: Colors.red),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 15),
+                    Text(
+                        'Correlation of 2 parameters in time to think of causation.'),
+                    SizedBox(height: 15),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                              text: "More instructions under ",
+                              style: TextStyle(color: Colors.black)),
+                          WidgetSpan(
+                            child: Icon(Icons.info),
+                          ),
+                          TextSpan(
+                              text: " in the section.",
+                              style: TextStyle(color: Colors.black)),
+                        ],
+                      ),
+                    ),
+                  ]),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const CorrelationParameterPicker()));
+              },
             ),
           ],
         ),
