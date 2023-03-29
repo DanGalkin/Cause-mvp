@@ -5,6 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cause_flutter_mvp/firebase_options.dart';
+import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/cupertino.dart';
 
 class FirebaseServices extends ChangeNotifier {
@@ -32,6 +33,9 @@ class FirebaseServices extends ChangeNotifier {
 
     FirebaseUIAuth.configureProviders([
       EmailAuthProvider(),
+      GoogleProvider(
+          clientId:
+              '925271095354-adsqb6ssnf1i0hi3b932thmbofj6209q.apps.googleusercontent.com'),
     ]);
 
     FirebaseAuth.instance.userChanges().listen((user) {

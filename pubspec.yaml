@@ -48,6 +48,8 @@ dependencies:
   get_it: ^7.2.0
   share_plus: ^6.3.0
   csv: ^5.0.1
+  google_sign_in: ^6.0.2
+  firebase_ui_oauth_google: ^1.0.24
 
 dev_dependencies:
   flutter_test:
