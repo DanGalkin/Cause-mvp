@@ -43,6 +43,8 @@ class _UserEntryScreenState extends State<UserEntryScreen> {
   }
 
   Widget _buildWhileLoading() {
-    return const Center(child: CircularProgressIndicator());
+    return Scaffold(
+        appBar: AppBar(title: const Text('Syncing with database...')),
+        body: const Center(child: CircularProgressIndicator()));
   }
 }
