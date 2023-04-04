@@ -89,6 +89,7 @@ class FirebaseServices extends ChangeNotifier {
       {String permission = 'all'}) async {
     DatabaseReference userBoardsRef = database.ref('users/$uid/boards');
     userBoardsRef.update({boardId: 'all'});
+    notifyListeners();
   }
 
   Future<void> addUserToBoard(String boardId, String uid,
@@ -96,18 +97,21 @@ class FirebaseServices extends ChangeNotifier {
     DatabaseReference boardPermissionsRef =
         database.ref('boards/$boardId/permissions');
     boardPermissionsRef.update({uid: permission});
+    notifyListeners();
   }
 
   Future<void> removeUserFromBoard(String boardId, String uid) async {
     DatabaseReference userRefToRemove =
         database.ref('boards/$boardId/permissions/$uid');
     userRefToRemove.remove();
+    notifyListeners();
   }
 
   Future<void> removeBoardFromUser(String boardId, String uid) async {
     DatabaseReference boardRefToRemove =
         database.ref('users/$uid/boards/$boardId');
     boardRefToRemove.remove();
+    notifyListeners();
   }
 
   Future<Map<String, Map>> retreiveBoardsofCurrentUser() async {
@@ -156,5 +160,47 @@ class FirebaseServices extends ChangeNotifier {
         .firstWhere((key) => users[key]['email'] == email, orElse: () => null);
     print('result: $uid');
     return uid;
+  }
+
+  Future<String?> emailByUid(String uid) async {
+    DatabaseReference usersRef = database.ref().child('users').child(uid);
+    String? email;
+    await usersRef.get().then(
+      (snapshot) {
+        Map user = snapshot.value as Map;
+        email = user['email'];
+      },
+    );
+    return email;
+  }
+
+  Future<void> createTemplate(templateMap) async {
+    print('creating Template: ${templateMap['name']}');
+    DatabaseReference templateRef =
+        database.ref('templates/${templateMap['id']}');
+    await templateRef.set(templateMap);
+  }
+
+  Future<void> updateTemplate(Map<String, dynamic> templateMap) async {
+    String id = templateMap['id'];
+    print('updating template: $id');
+    print(templateMap);
+    DatabaseReference templateRef = database.ref('templates/$id');
+    templateRef.update(templateMap);
+  }
+
+  Future<Map> getTempateMapById(String id) async {
+    DatabaseReference templateRef = database.ref('templates/$id');
+    Map template = {};
+
+    await templateRef.get().then(
+      (snapshot) {
+        if (!snapshot.exists) {
+          return {};
+        }
+        template = snapshot.value as Map;
+      },
+    );
+    return template;
   }
 }

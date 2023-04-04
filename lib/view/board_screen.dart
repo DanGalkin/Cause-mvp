@@ -15,13 +15,14 @@ import './view_utilities/text_utilities.dart';
 import './boards_screen.dart';
 import './create_parameter_screen.dart';
 import './parameter_screen.dart';
-import './share_board_screen.dart';
+import './share_edit_screen.dart';
 import './analytics_screen.dart';
 
 import '../../model/note.dart';
 
 import 'package:intl/intl.dart';
 
+import 'sharing_board_screen.dart';
 import 'view_utilities/ui_widgets.dart';
 
 class BoardScreen extends StatelessWidget {
@@ -47,6 +48,7 @@ class BoardScreen extends StatelessWidget {
                           builder: (context) =>
                               AnalyticsScreen(board: syncedBoard)));
                 }),
+            //TODO this condition should go further to sharing screen
             if (fbServices.currentUser!.uid == syncedBoard.createdBy)
               IconButton(
                 icon: const Icon(Icons.share),
@@ -54,7 +56,7 @@ class BoardScreen extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          ShareBoardScreen(board: syncedBoard),
+                          SharingBoardScreen(board: syncedBoard),
                     )),
               )
           ],

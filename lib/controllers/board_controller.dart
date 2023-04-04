@@ -8,6 +8,7 @@ import '../model/parameter.dart';
 import '../model/note.dart';
 import '../model/button_decoration.dart';
 
+import '../model/template.dart';
 import '../services/board_services.dart';
 import '../services/service_locator.dart';
 
@@ -54,18 +55,18 @@ class BoardController extends ChangeNotifier {
   }
 
   //create new board
-  Future<void> createBoard({String name = ''}) async {
+  Future<void> createBoard({String name = '', String description = ''}) async {
     final String uid = fbServices.currentUser!.uid;
     Board newBoard = Board(
         id: nanoid(10),
         name: name,
+        description: description,
         createdBy: uid,
         params: <String, Parameter>{},
         permissions: {});
     await fbServices.createBoard(newBoard.toMap());
     await shareBoardByUid(newBoard, uid);
     listenToBoardUpdates(newBoard);
-    //services.createBoard(name); not using yet
   }
 
   Future<void> shareBoardByUid(Board board, String uid,
@@ -75,16 +76,17 @@ class BoardController extends ChangeNotifier {
   }
 
   //delete board -> make the validation that a board a shared
-  void removeBoard(Board board) {
+  Future<void> removeBoard(Board board) async {
     final String uid = fbServices.currentUser!.uid;
-    _boards.remove(board.id);
-    notifyListeners();
 
     //cancel subscription
-    _boardSubscriptions[board.id].cancel();
 
-    fbServices.removeUserFromBoard(board.id, uid);
-    fbServices.removeBoardFromUser(board.id, uid);
+    await fbServices.removeUserFromBoard(board.id, uid);
+    await fbServices.removeBoardFromUser(board.id, uid);
+    _boards.remove(board.id);
+    //cancel subscription
+    _boardSubscriptions[board.id].cancel();
+    notifyListeners();
   }
 
   Future<void> createParameter(
@@ -329,6 +331,104 @@ class BoardController extends ChangeNotifier {
 
   Future<String?> uidByEmail(String email) async {
     return fbServices.uidByEmail(email);
+  }
+
+  //creates or updates the board's template
+  Future<String?> updateTemplateFromBoard(Board board) async {
+    final String uid = fbServices.currentUser!.uid; // doesn't needed
+    DateTime now = DateTime.now();
+    String newTemplateId = nanoid(6);
+
+    //create new templates parameters
+    Map<String, Parameter> clearedParams = {};
+    for (Parameter param in board.params.values) {
+      //copy empty parameters
+      Parameter clearParam = Parameter(
+        id: nanoid(10),
+        createdTime: now,
+        parentBoardId: board.id,
+        name: param.name,
+        durationType: param.durationType,
+        varType: param.varType,
+        metric: param.metric,
+        categories: param.categories,
+        notes: {},
+        decoration: param.decoration,
+        description: param.description,
+      );
+      clearedParams[clearParam.id] = clearParam;
+    }
+
+    //createTemplate
+    Template newTemplate = Template(
+      id: board.templateId ?? newTemplateId,
+      name: board.name,
+      createdBy: board.createdBy,
+      description: board.description,
+      fromBoardId: board.id,
+      updatedTime: now,
+      params: clearedParams,
+      copyCount: 0,
+    );
+
+    if (board.templateId == null) {
+      await fbServices.createTemplate(newTemplate.toMap());
+      board.templateId = newTemplateId;
+    } else {
+      await fbServices.updateTemplate(newTemplate.toMap());
+    }
+
+    board.templateUpdatedTime = now;
+    await fbServices.updateBoard(board.id, board.toMap());
+
+    //return it's Id
+    return board.templateId;
+  }
+
+  //get the template from the DB by Id
+  Future<Template?> getTemplateById(String id) async {
+    Map templateMap = await fbServices.getTempateMapById(id);
+    if (templateMap.isEmpty) {
+      return null;
+    }
+
+    return Template.fromMap(templateMap);
+  }
+
+  Future<void> createBoardFromTemplate(Template template) async {
+    final String uid = fbServices.currentUser!.uid;
+    DateTime now = DateTime.now();
+    String newBoardId = nanoid(10);
+
+    //create newParams
+    Map<String, Parameter> paramsFromTemplate = {};
+    for (Parameter param in template.params.values) {
+      Parameter createdParam = Parameter(
+        id: nanoid(10),
+        createdTime: now,
+        parentBoardId: newBoardId,
+        name: param.name,
+        durationType: param.durationType,
+        varType: param.varType,
+        metric: param.metric,
+        categories: param.categories,
+        notes: {},
+        decoration: param.decoration,
+        description: param.description,
+      );
+      paramsFromTemplate[createdParam.id] = createdParam;
+    }
+
+    Board newBoard = Board(
+        id: newBoardId,
+        name: template.name,
+        description: template.description,
+        createdBy: uid,
+        params: paramsFromTemplate,
+        permissions: {});
+    await fbServices.createBoard(newBoard.toMap());
+    await shareBoardByUid(newBoard, uid);
+    listenToBoardUpdates(newBoard);
   }
 
   //HERE THEY END

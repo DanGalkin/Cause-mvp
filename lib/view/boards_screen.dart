@@ -47,7 +47,7 @@ class BoardsScreen extends StatelessWidget {
           body: ListView.separated(
             itemCount: boards.boards.length,
             itemBuilder: ((context, index) => Dismissible(
-                  key: ValueKey(boards.boards[index]),
+                  key: UniqueKey(),
                   background: Container(color: Colors.red),
                   direction: DismissDirection.endToStart,
                   confirmDismiss: (_) {

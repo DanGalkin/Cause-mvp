@@ -4,15 +4,15 @@ import '../model/board.dart';
 import '../services/service_locator.dart';
 import '../controllers/board_controller.dart';
 
-class ShareBoardScreen extends StatefulWidget {
-  const ShareBoardScreen({required this.board, super.key});
+class ShareEditScreen extends StatefulWidget {
+  const ShareEditScreen({required this.board, super.key});
   final Board board;
 
   @override
-  State<ShareBoardScreen> createState() => _ShareBoardScreenState();
+  State<ShareEditScreen> createState() => _ShareEditScreenState();
 }
 
-class _ShareBoardScreenState extends State<ShareBoardScreen> {
+class _ShareEditScreenState extends State<ShareEditScreen> {
   late TextEditingController _controller;
 
   @override
@@ -30,7 +30,7 @@ class _ShareBoardScreenState extends State<ShareBoardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Share board: ${widget.board.name}')),
+      appBar: AppBar(title: Text('Share edit: ${widget.board.name}')),
       body: Padding(
           padding: const EdgeInsets.all(15),
           child: Center(
@@ -39,8 +39,18 @@ class _ShareBoardScreenState extends State<ShareBoardScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const SizedBox(height: 15),
-                const Headline('Input email to share with:'),
-                TextField(controller: _controller),
+                TextField(
+                  controller: _controller,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Email to share with',
+                  ),
+                ),
+                const SizedBox(height: 30),
+                const Headline(
+                    'Collaborators will have the permission to add new notes and change parameters (data structure) of the board.'),
+                const Headline(
+                    'They will not have rights to share the board edit or board template.'),
               ],
             ),
           )),
