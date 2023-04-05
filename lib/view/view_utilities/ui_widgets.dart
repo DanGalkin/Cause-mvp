@@ -80,7 +80,7 @@ class ParameterButtonTemplate extends StatelessWidget {
                       //fit: BoxFit.fitWidth,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        parameter.name,
+                        parameter.name != '' ? parameter.name : ' ',
                         textAlign: TextAlign.start,
                         style: const TextStyle(
                           fontSize: 20,

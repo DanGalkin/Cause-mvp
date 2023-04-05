@@ -76,8 +76,16 @@ String getLastNoteString(Note note) {
     return '${toContextualMoment(note.moment!)}: ${note.value['categorical']['name']}';
   }
 
+  if (note.varType == VarType.ordinal) {
+    return '${toContextualMoment(note.moment!)}: ${note.value['ordinal']['name']}';
+  }
+
   if (note.varType == VarType.quantitative) {
     return '${toContextualMoment(note.moment!)}: ${note.value['quantitative']['value']} ${note.value['quantitative']['metric']}';
+  }
+
+  if (note.varType == VarType.unstructured) {
+    return toContextualMoment(note.moment!);
   }
 
   return '';
