@@ -128,21 +128,6 @@ class ChartLabel extends StatelessWidget {
   }
 }
 
-class ParameterTitle extends StatelessWidget {
-  const ParameterTitle({
-    super.key,
-    required this.parameter,
-  });
-  final Parameter parameter;
-
-  @override
-  Widget build(BuildContext context) {
-    return ParameterButtonTemplate(
-      parameter: parameter,
-    );
-  }
-}
-
 class RemovableParameterTitle extends StatelessWidget {
   const RemovableParameterTitle(
       {super.key, required this.parameter, required this.onRemove});

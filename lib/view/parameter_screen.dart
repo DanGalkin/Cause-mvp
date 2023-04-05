@@ -152,7 +152,15 @@ class _ParameterScreenState extends State<ParameterScreen> {
             width: 320,
             child: Column(
               children: [
-                ParameterTitle(parameter: parameter),
+                ParameterButtonTemplate(
+                    parameter: parameter,
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => NotesListScreen(
+                                  board: widget.board, parameter: parameter)));
+                    }),
                 const SizedBox(height: 25),
                 _buildTimeSelector(),
                 const SizedBox(height: 25),

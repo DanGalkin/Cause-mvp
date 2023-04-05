@@ -98,9 +98,9 @@ class _CorrelationScreenState extends State<CorrelationScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const SizedBox(height: 15),
-                            ParameterTitle(parameter: p1),
+                            ParameterButtonTemplate(parameter: p1),
                             const SizedBox(height: 15),
-                            ParameterTitle(parameter: p2),
+                            ParameterButtonTemplate(parameter: p2),
                             const SizedBox(height: 15),
 
                             //block for choosing interval
