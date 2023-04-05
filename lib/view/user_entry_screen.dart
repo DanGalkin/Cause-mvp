@@ -27,9 +27,11 @@ class _UserEntryScreenState extends State<UserEntryScreen> {
     if (!mounted) return;
 
     boardController.updateBoardsOfCurrentUser().whenComplete(() {
-      setState(() {
-        _storageUpdatedAfterStart = true;
-      });
+      if (mounted) {
+        setState(() {
+          _storageUpdatedAfterStart = true;
+        });
+      }
     });
   }
 
