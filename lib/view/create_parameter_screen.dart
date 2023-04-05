@@ -62,6 +62,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
     if (_editScreen) {
       _parameter = widget.parameter!;
       _nameController.text = _parameter.name;
+      _descriptionController.text = _parameter.description;
       _icon = _parameter.decoration.icon;
       _color = _parameter.decoration.color;
       _showLastNote = _parameter.decoration.showLastNote;
