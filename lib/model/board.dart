@@ -20,6 +20,8 @@ class Board {
       this.templateId,
       this.templateUpdatedTime});
 
+  bool get hasDescription => description != null;
+
   Board.fromMap(Map map)
       : id = map['id'],
         name = map['name'] ?? '',

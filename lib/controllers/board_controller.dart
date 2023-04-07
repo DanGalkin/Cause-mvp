@@ -55,7 +55,7 @@ class BoardController extends ChangeNotifier {
   }
 
   //create new board
-  Future<void> createBoard({String name = '', String description = ''}) async {
+  Future<void> createBoard({String name = '', String? description}) async {
     final String uid = fbServices.currentUser!.uid;
     Board newBoard = Board(
         id: nanoid(10),
@@ -67,6 +67,13 @@ class BoardController extends ChangeNotifier {
     await fbServices.createBoard(newBoard.toMap());
     await shareBoardByUid(newBoard, uid);
     listenToBoardUpdates(newBoard);
+  }
+
+  Future<void> updateBoardInfo(
+      {required Board board, required String name, String? description}) async {
+    board.name = name;
+    board.description = description;
+    await fbServices.updateBoard(board.id, board.toMap());
   }
 
   Future<void> shareBoardByUid(Board board, String uid,

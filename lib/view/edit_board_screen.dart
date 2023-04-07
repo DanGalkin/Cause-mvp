@@ -1,31 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/board_controller.dart';
-import 'create_board_from_template.dart';
-import 'view_utilities/ui_widgets.dart';
+import '../model/board.dart';
 
-class CreateBoardScreen extends StatefulWidget {
-  const CreateBoardScreen({Key? key}) : super(key: key);
+class EditBoardScreen extends StatefulWidget {
+  const EditBoardScreen({required this.board, Key? key}) : super(key: key);
+
+  final Board board;
 
   @override
-  State<CreateBoardScreen> createState() => _CreateBoardScreenState();
+  State<EditBoardScreen> createState() => _EditBoardScreenState();
 }
 
-class _CreateBoardScreenState extends State<CreateBoardScreen> {
+class _EditBoardScreenState extends State<EditBoardScreen> {
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
 
   @override
   void initState() {
     _nameController = TextEditingController();
+    _nameController.text = widget.board.name;
+
     _descriptionController = TextEditingController();
+    _descriptionController.text = widget.board.description ?? '';
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final board = widget.board;
     return Scaffold(
-      appBar: AppBar(title: const Text('Create new Board')),
+      appBar: AppBar(title: Text('${board.name}: edit Board')),
       body: Scrollbar(
         child: SingleChildScrollView(
           child: Center(
@@ -36,12 +42,11 @@ class _CreateBoardScreenState extends State<CreateBoardScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  const Headline('Create new from scratch:'),
                   TextField(
                     controller: _nameController,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      labelText: 'Name of new board',
+                      labelText: 'Name',
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -53,18 +58,6 @@ class _CreateBoardScreenState extends State<CreateBoardScreen> {
                       labelText: 'Description',
                     ),
                   ),
-                  const SizedBox(height: 40),
-                  const Headline('Or copy from template:'),
-                  ToolButton(
-                      title: 'Enter template code',
-                      icon: const Icon(Icons.offline_share),
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const CreateFromTemplateScreen()));
-                      })
                 ],
               ),
             ),
@@ -72,13 +65,11 @@ class _CreateBoardScreenState extends State<CreateBoardScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {
-            createBoard().then((_) {
-              Navigator.pop(context);
-            });
-          },
-          icon: const Icon(Icons.add),
-          label: const Text('CREATE')),
+          onPressed: () => updateBoardInfo(board).then((_) {
+                Navigator.pop(context);
+              }),
+          icon: const Icon(Icons.edit),
+          label: const Text('SAVE')),
     );
   }
 
@@ -89,11 +80,11 @@ class _CreateBoardScreenState extends State<CreateBoardScreen> {
     super.dispose();
   }
 
-  Future<void> createBoard() async {
+  Future<void> updateBoardInfo(Board board) async {
     String name = _nameController.text;
     String? description =
         _descriptionController.text == '' ? null : _descriptionController.text;
     await Provider.of<BoardController>(context, listen: false)
-        .createBoard(name: name, description: description);
+        .updateBoardInfo(board: board, name: name, description: description);
   }
 }
