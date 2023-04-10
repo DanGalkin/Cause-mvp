@@ -1,4 +1,3 @@
-import 'package:cause_flutter_mvp/services/firebase_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
@@ -12,16 +11,12 @@ import './view_utilities/ordering_utilities.dart';
 import './view_utilities/action_validation_utilities.dart';
 import './view_utilities/text_utilities.dart';
 
-import './boards_screen.dart';
 import './create_parameter_screen.dart';
 import './parameter_screen.dart';
-import './share_edit_screen.dart';
-import './analytics_screen.dart';
 
 import '../../model/note.dart';
 
-import 'package:intl/intl.dart';
-
+import 'main_drawer.dart';
 import 'sharing_board_screen.dart';
 import 'view_utilities/ui_widgets.dart';
 
@@ -31,157 +26,160 @@ class BoardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<FirebaseServices, BoardController>(
-        builder: (context, fbServices, boards, child) {
-      Board syncedBoard = boards.boards[board.id]!;
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('Board: ${syncedBoard.name}'),
-          actions: [
-            IconButton(
-                icon: const Icon(Icons.analytics),
-                tooltip: 'Analytics',
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              AnalyticsScreen(board: syncedBoard)));
-                }),
-            //TODO this condition should go further to sharing screen
-            if (fbServices.currentUser!.uid == syncedBoard.createdBy)
-              IconButton(
-                icon: const Icon(Icons.share),
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          SharingBoardScreen(board: syncedBoard),
-                    )),
-              )
-          ],
-        ),
-        body: _buildParameters(context),
-        drawer: _buildDrawer(context),
-        floatingActionButton: FloatingActionButton.extended(
-            label: const Text('PARAMETER'),
-            icon: const Icon(Icons.add),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Board: ${board.name}'),
+        actions: [
+          // This is not working yet, because analytics are not in release
+          // IconButton(
+          //     icon: const Icon(Icons.analytics),
+          //     tooltip: 'Analytics',
+          //     onPressed: () {
+          //       Navigator.push(
+          //           context,
+          //           MaterialPageRoute(
+          //               builder: (context) => AnalyticsScreen(board: board)));
+          //     }),
+          IconButton(
+            icon: const Icon(Icons.share),
             onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => CreateParameterScreen(board: board),
-                ))),
-      );
-    });
+                  builder: (context) => SharingBoardScreen(board: board),
+                )),
+          )
+        ],
+      ),
+      body: _buildParameters(context),
+      drawer: const MainDrawer(),
+      floatingActionButton: FloatingActionButton.extended(
+          label: const Text('PARAMETER'),
+          icon: const Icon(Icons.add),
+          onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CreateParameterScreen(board: board),
+              ))),
+    );
   }
 
-  Widget _buildDrawer(BuildContext context) {
-    return Consumer2<BoardController, FirebaseServices>(
-        builder: (context, boards, fbServices, child) {
-      return Drawer(
-        child: ListView(padding: EdgeInsets.zero, children: [
-          DrawerHeader(
-            child: GestureDetector(
-                child: RichText(
-                    text: TextSpan(
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700),
-                        children: [
-                      const TextSpan(
-                          text: 'Your boards,',
-                          style:
-                              TextStyle(decoration: TextDecoration.underline)),
-                      TextSpan(text: ' ${fbServices.currentUser!.displayName}!')
-                    ])),
-                onTap: () => Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const BoardsScreen(),
-                    ))),
-          ),
-          for (Board board in boards.boards.values)
-            ListTile(
-              title: Text(board.name),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BoardScreen(board: board),
-                    ));
-              },
-            )
-        ]),
-      );
-    });
+  Widget _noParamsPlaceholder() {
+    return Center(
+      child: SizedBox(
+        width: 320,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: const [
+            SizedBox(
+              width: 320,
+              child: Center(
+                child: Headline(
+                  'You have no Parameter on this board: create one with +PARAMETER button below.',
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            SizedBox(
+              width: 320,
+              child: Headline(
+                  'Parameter - is any repetitive event in your life you want to track.'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildParameters(BuildContext context) {
     return Consumer<BoardController>(builder: (context, boards, child) {
       Board syncedBoard = boards.boards[board.id]!;
       List<Parameter> paramList = orderedParamList(syncedBoard);
-      return Scrollbar(
-        child: Padding(
-          padding: const EdgeInsets.all(15),
-          child: ListView.separated(
-            itemCount: paramList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == paramList.length) {
-                return const SizedBox(height: 50);
-              } else {
-                Parameter parameter = paramList[index];
-                return Slidable(
-                  key: ValueKey(parameter.id),
-                  endActionPane: ActionPane(
-                    motion: const DrawerMotion(),
-                    children: [
-                      SlidableAction(
-                        onPressed: (context) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => CreateParameterScreen(
-                                        board: syncedBoard,
-                                        parameter: parameter,
-                                      )));
-                        },
-                        backgroundColor: Colors.grey.shade700,
-                        foregroundColor: Colors.white,
-                        icon: Icons.edit_note,
-                        label: 'Edit',
-                      ),
-                      SlidableAction(
-                        onPressed: (context) async {
-                          bool? validated = await validateUserAction(
-                              context: context,
-                              validationText:
-                                  'Parameter and all its notes will be deleted for all users.');
-                          if (validated == true) {
-                            getIt<BoardController>()
-                                .deleteParameter(syncedBoard, parameter);
-                          }
-                        },
-                        backgroundColor: const Color(0xFFFE4A49),
-                        foregroundColor: Colors.white,
-                        icon: Icons.delete,
-                        label: 'Delete',
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: ParameterButton(
-                      parameter: parameter,
-                      board: syncedBoard,
-                    ),
-                  ),
-                );
-              }
-            },
-            separatorBuilder: ((context, index) => const SizedBox(height: 15)),
-          ),
-        ),
-      );
+      return board.params.isEmpty
+          ? _noParamsPlaceholder()
+          : Scrollbar(
+              child: Padding(
+                padding: const EdgeInsets.all(15),
+                child: ListView.separated(
+                  itemCount: paramList.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == paramList.length) {
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          SizedBox(height: 10),
+                          SizedBox(
+                            width: 320,
+                            child: Center(
+                              child: Text(
+                                '<-- Swipe left the Parameter button to edit or delete',
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 184, 184, 184),
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 50),
+                        ],
+                      );
+                    } else {
+                      Parameter parameter = paramList[index];
+                      return Slidable(
+                        key: ValueKey(parameter.id),
+                        endActionPane: ActionPane(
+                          motion: const DrawerMotion(),
+                          children: [
+                            SlidableAction(
+                              onPressed: (context) {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            CreateParameterScreen(
+                                              board: syncedBoard,
+                                              parameter: parameter,
+                                            )));
+                              },
+                              backgroundColor: Colors.grey.shade700,
+                              foregroundColor: Colors.white,
+                              icon: Icons.edit_note,
+                              label: 'Edit',
+                            ),
+                            SlidableAction(
+                              onPressed: (context) async {
+                                bool? validated = await validateUserAction(
+                                    context: context,
+                                    validationText:
+                                        'Parameter and all its notes will be deleted for all users.');
+                                if (validated == true) {
+                                  getIt<BoardController>()
+                                      .deleteParameter(syncedBoard, parameter);
+                                }
+                              },
+                              backgroundColor: const Color(0xFFFE4A49),
+                              foregroundColor: Colors.white,
+                              icon: Icons.delete,
+                              label: 'Delete',
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: ParameterButton(
+                            parameter: parameter,
+                            board: syncedBoard,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  separatorBuilder: ((context, index) =>
+                      const SizedBox(height: 15)),
+                ),
+              ),
+            );
     });
   }
 }
