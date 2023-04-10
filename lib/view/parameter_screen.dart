@@ -281,7 +281,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
     final Parameter param = widget.parameter;
     if (param.varType == VarType.binary) {
       return const Headline(
-          'The default binary value is true. The fact of event occurance will be saved.');
+          'Binary parameter does not require additional input. It has default value of true.');
     } else if (param.varType == VarType.quantitative) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,

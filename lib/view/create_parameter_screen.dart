@@ -13,6 +13,7 @@ import '../model/board.dart';
 import '../model/button_decoration.dart';
 import '../model/parameter.dart';
 import './view_utilities/pickers.dart';
+import 'view_utilities/ui_widgets.dart';
 
 class CreateParameterScreen extends StatefulWidget {
   final Board board;
@@ -95,6 +96,8 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
           title: _step < 2
               ? const Text('Select Duration type')
               : Text('Duration type: ${_selectedDurationType.name}'),
+          subtitle: const Text(
+              'Does this parameter occurs as just a moment or the an interval of time?'),
           content: _editScreen
               ? Container(
                   alignment: Alignment.centerLeft,
@@ -108,6 +111,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
         title: _step < 3
             ? const Text('Select Data type')
             : Text('Data type: ${_selectedVarType.name}'),
+        subtitle: const Text('What type would be the value of this parameter?'),
         content: _editScreen
             ? Container(
                 alignment: Alignment.centerLeft,
@@ -230,6 +234,10 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
               _selectedDurationType = value!;
             });
           },
+          secondary: DescriptionButton(
+            popupTitle: const Text('What is Moment type?'),
+            description: _momentDescription(),
+          ),
         ),
         RadioListTile<DurationType>(
           title: const Text('Duration'),
@@ -240,6 +248,10 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
               _selectedDurationType = value!;
             });
           },
+          secondary: DescriptionButton(
+            popupTitle: const Text('What is Duration?'),
+            description: _durationDescription(),
+          ),
         ),
       ],
     );
@@ -257,6 +269,10 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
               _selectedVarType = value!;
             });
           },
+          secondary: DescriptionButton(
+            popupTitle: const Text('What is Binary?'),
+            description: _binaryDescription(),
+          ),
         ),
         RadioListTile<VarType>(
           title: const Text('Quantitative'),
@@ -267,6 +283,10 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
               _selectedVarType = value!;
             });
           },
+          secondary: DescriptionButton(
+            popupTitle: const Text('What is Quantitative?'),
+            description: _quantitativeDescription(),
+          ),
         ),
         RadioListTile<VarType>(
           title: const Text('Ordinal'),
@@ -277,6 +297,10 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
               _selectedVarType = value!;
             });
           },
+          secondary: DescriptionButton(
+            popupTitle: const Text('What is Ordinal type?'),
+            description: _ordinalDescription(),
+          ),
         ),
         RadioListTile<VarType>(
           title: const Text('Categorical'),
@@ -287,6 +311,10 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
               _selectedVarType = value!;
             });
           },
+          secondary: DescriptionButton(
+            popupTitle: const Text('What is Categorical type?'),
+            description: _categoricalDescription(),
+          ),
         ),
         RadioListTile<VarType>(
           title: const Text('Unstructured'),
@@ -297,6 +325,10 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
               _selectedVarType = value!;
             });
           },
+          secondary: DescriptionButton(
+            popupTitle: const Text('What is Unstructured type?'),
+            description: _unstructuredDescription(),
+          ),
         ),
       ],
     );
@@ -310,7 +342,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
             Container(
               alignment: Alignment.centerLeft,
               child: const Text(
-                  'No need for additional properties for binary parameter. It either occured, or not.'),
+                  "Binary parameter doesn't need additional properties. The fact of the occurance is already its value."),
             ),
             const SizedBox(height: 15),
           ],
@@ -712,4 +744,179 @@ class ColorCircleButton extends StatelessWidget {
                   )))),
     );
   }
+}
+
+//DESCRIPTIONS
+Widget _momentDescription() {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: const [
+      Text.rich(
+        TextSpan(children: [
+          TextSpan(text: 'Select '),
+          TextSpan(
+              text: 'Moment', style: TextStyle(fontWeight: FontWeight.w500)),
+          TextSpan(text: ' if the duration of the parameter/event/occurance '),
+          TextSpan(
+              text: 'doesn’t', style: TextStyle(fontWeight: FontWeight.w500)),
+          TextSpan(text: ' important for your research.'),
+        ]),
+      ),
+      SizedBox(height: 10),
+      Text(
+          'For example, I do morning exercises for 15 minutes, but duration is not important for me - the fact of the exercises is.'),
+      SizedBox(height: 10),
+      Text.rich(TextSpan(children: [
+        TextSpan(
+            text:
+                'On the other hand, if I run 3 km everyday, and I want to know the duration time of my activity, I choose the '),
+        TextSpan(
+            text: 'Duration', style: TextStyle(fontWeight: FontWeight.w500)),
+        TextSpan(text: ' option. '),
+      ])),
+    ],
+  );
+}
+
+Widget _durationDescription() {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: const [
+      Text.rich(
+        TextSpan(children: [
+          TextSpan(text: 'Select '),
+          TextSpan(
+              text: 'Duration', style: TextStyle(fontWeight: FontWeight.w500)),
+          TextSpan(text: ' if the duration of the parameter/event/occurance '),
+          TextSpan(text: 'does', style: TextStyle(fontWeight: FontWeight.w500)),
+          TextSpan(
+              text:
+                  ' important for your research. Even when the event might be shortlived.'),
+        ]),
+      ),
+      SizedBox(height: 10),
+      Text(
+          'You will be able to set start and end time of the event, or live record it.'),
+      SizedBox(height: 10),
+      Text(
+          'Examples are: sleeping/reading/working/walking/headache/meditating time and etc.'),
+    ],
+  );
+}
+
+Widget _binaryDescription() {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: const [
+      Text.rich(
+        TextSpan(children: [
+          TextSpan(text: 'Select '),
+          TextSpan(
+              text: 'Binary', style: TextStyle(fontWeight: FontWeight.w500)),
+          TextSpan(
+              text:
+                  ' if the only important thing you track is the fact of occurrence: whether it was, or it wasn’t. It is yes or no, that is why it is called '),
+          TextSpan(
+              text: 'Binary', style: TextStyle(fontWeight: FontWeight.w500)),
+        ]),
+      ),
+      SizedBox(height: 10),
+      Text(
+          "Examples: I had a coffee, changed kid's diapers, played with a dog and etc."),
+    ],
+  );
+}
+
+Widget _quantitativeDescription() {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: const [
+      Text.rich(
+        TextSpan(children: [
+          TextSpan(text: 'Select '),
+          TextSpan(
+              text: 'Quantitative',
+              style: TextStyle(fontWeight: FontWeight.w500)),
+          TextSpan(
+              text:
+                  ', when the value is a number. One the next step you will choose its metric.'),
+        ]),
+      ),
+      SizedBox(height: 10),
+      Text(
+          "Examples: calories intaken (cal), pushups made (pcs), distance ran (km), water drank (ml) and etc."),
+    ],
+  );
+}
+
+Widget _ordinalDescription() {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: const [
+      Text.rich(
+        TextSpan(children: [
+          TextSpan(text: 'Select '),
+          TextSpan(
+              text: 'Ordinal', style: TextStyle(fontWeight: FontWeight.w500)),
+          TextSpan(
+              text:
+                  ' if the value differs within a set of ordered values. My headache may be 1.light, 2.heavy and 3.severe - these are ordered possible values. One the next step you will formulate values for this parameter.'),
+        ]),
+      ),
+      SizedBox(height: 10),
+      Text(
+          "Examples: grade received on exam, rating of the film I’ve watched, the strength of pain."),
+    ],
+  );
+}
+
+Widget _categoricalDescription() {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: const [
+      Text.rich(
+        TextSpan(children: [
+          TextSpan(text: 'Select '),
+          TextSpan(
+              text: 'Categorical',
+              style: TextStyle(fontWeight: FontWeight.w500)),
+          TextSpan(
+              text:
+                  ' if the value differs within a set of unordered values. The coffee you drink might be Latte, Capuccino, Espresso or Macchiato. This set of values cannot be ordered. One the next step you will formulate categories for this parameter.'),
+        ]),
+      ),
+      SizedBox(height: 10),
+      Text(
+          "Examples: Bristol stool chart, negative emotions experienced, type of yoga attended and etc."),
+    ],
+  );
+}
+
+Widget _unstructuredDescription() {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: const [
+      Text.rich(
+        TextSpan(children: [
+          TextSpan(text: 'Select '),
+          TextSpan(
+              text: 'Unsctructured',
+              style: TextStyle(fontWeight: FontWeight.w500)),
+          TextSpan(
+              text:
+                  ' if the value might be non of the above type. During the input you will type a plain text as a value.'),
+        ]),
+      ),
+      SizedBox(height: 10),
+      Text(
+          "Examples: the name of the game you played, your big thought, the person you had a deep talk with and etc."),
+    ],
+  );
 }

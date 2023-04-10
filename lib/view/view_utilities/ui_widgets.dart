@@ -342,3 +342,34 @@ class ToolButton extends StatelessWidget {
     );
   }
 }
+
+class DescriptionButton extends StatelessWidget {
+  const DescriptionButton({this.popupTitle, this.description, super.key});
+
+  final Widget? popupTitle;
+  final Widget? description;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+        icon: const Icon(Icons.info),
+        onPressed: () {
+          showDialog<void>(
+              context: context,
+              barrierDismissible: true,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                    title: popupTitle ?? const Text('Description'),
+                    content: description ??
+                        const Text('Sorry. No description provided.'),
+                    actions: [
+                      TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Ok'))
+                    ]);
+              });
+        });
+  }
+}
