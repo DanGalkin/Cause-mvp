@@ -29,6 +29,29 @@ class Headline extends StatelessWidget {
   }
 }
 
+class TitleLine extends StatelessWidget {
+  const TitleLine(this.text, {super.key});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          text,
+          textAlign: TextAlign.left,
+          style: const TextStyle(
+            color: Color(0xFF7B7B7B),
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+          ),
+        ),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+}
+
 class ParameterButtonTemplate extends StatelessWidget {
   const ParameterButtonTemplate({
     super.key,
@@ -241,6 +264,8 @@ class ToolButton extends StatelessWidget {
     required this.onPressed,
     this.popupDescription,
     this.popupTitle,
+    this.disabled = false,
+    this.onDisabledTap,
     super.key,
   });
   final String title;
@@ -248,6 +273,8 @@ class ToolButton extends StatelessWidget {
   final VoidCallback onPressed;
   final Widget? popupDescription;
   final Widget? popupTitle;
+  final bool disabled;
+  final VoidCallback? onDisabledTap;
 
   Future<void> _showDescription(BuildContext context) async {
     return showDialog<void>(
@@ -269,46 +296,49 @@ class ToolButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Ink(
-        height: 60,
-        width: 320,
-        decoration: BoxDecoration(
-          color: const Color(0xFFEEEEEE),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: const Color(0xFF2196F3),
-          ),
-        ),
-        child: InkWell(
+    return Opacity(
+      opacity: !disabled ? 1 : 0.3,
+      child: Ink(
+          height: 60,
+          width: 320,
+          decoration: BoxDecoration(
+            color: const Color(0xFFEEEEEE),
             borderRadius: BorderRadius.circular(10),
-            onTap: onPressed,
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(13, 5, 5, 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      icon,
-                      const SizedBox(width: 20),
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          color: Colors.black,
+            border: Border.all(
+              color: const Color(0xFF2196F3),
+            ),
+          ),
+          child: InkWell(
+              borderRadius: BorderRadius.circular(10),
+              onTap: !disabled ? onPressed : onDisabledTap,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(13, 5, 5, 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        icon,
+                        const SizedBox(width: 20),
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.black,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  if (popupDescription != null)
-                    IconButton(
-                      icon: const Icon(Icons.info),
-                      onPressed: () {
-                        _showDescription(context);
-                      },
+                      ],
                     ),
-                ],
-              ),
-            )));
+                    if (popupDescription != null)
+                      IconButton(
+                        icon: const Icon(Icons.info),
+                        onPressed: () {
+                          _showDescription(context);
+                        },
+                      ),
+                  ],
+                ),
+              ))),
+    );
   }
 }

@@ -3,10 +3,17 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:csv/csv.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../model/board.dart';
 import '../../model/parameter.dart';
 import '../../model/note.dart';
+
+void exportCSVData(Board board) async {
+  File file = await ExportCSV(board: board).writeCSV();
+  await Share.shareFiles([file.path], text: 'Export Data');
+  await file.delete();
+}
 
 class ExportCSV {
   ExportCSV({
@@ -24,7 +31,7 @@ class ExportCSV {
   Future<File> get _localFile async {
     final path = await _localPath;
     return File(
-        '$path/Cause export ${DateTime.now().millisecondsSinceEpoch}.csv');
+        '$path/${board.name} export ${DateTime.now().millisecondsSinceEpoch}.csv');
   }
 
   //requir4ed context - should provide in the first place?
