@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../controllers/board_controller.dart';
@@ -8,6 +9,7 @@ import './boards_screen.dart';
 import './board_screen.dart';
 
 import '../model/board.dart';
+import 'login_screen.dart';
 
 class MainDrawer extends StatelessWidget {
   const MainDrawer({super.key});
@@ -16,33 +18,91 @@ class MainDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer2<BoardController, FirebaseServices>(
         builder: (context, boards, fbServices, child) {
+      final String? userName = fbServices.currentUser?.displayName;
+      final String? email = fbServices.currentUser?.email;
       return Drawer(
         child: ListView(padding: EdgeInsets.zero, children: [
           DrawerHeader(
-            child: GestureDetector(
-                child: RichText(
-                    text: TextSpan(
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700),
-                        children: [
-                      const TextSpan(
-                          text: 'Your boards,',
-                          style:
-                              TextStyle(decoration: TextDecoration.underline)),
-                      TextSpan(text: ' ${fbServices.currentUser!.displayName}!')
-                    ])),
-                onTap: () => Navigator.pushReplacement(
+              decoration: const BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: FittedBox(
+                          alignment: Alignment.centerLeft,
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            userName ?? 'Hi, visitor!',
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      IconButton(
+                          onPressed: () {
+                            Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const LoginScreen()),
+                                (route) => false);
+                          },
+                          icon: const Icon(Icons.logout, color: Colors.white)),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: FittedBox(
+                          alignment: Alignment.centerLeft,
+                          fit: BoxFit.scaleDown,
+                          child: Text(email ?? ' ',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              )),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _showContactUsDialog(context);
+                    },
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.white,
+                    ),
+                    icon: const Icon(Icons.help_outline_outlined, size: 16),
+                    label: const Text('Contact us'),
+                  )
+                ],
+              )),
+          ListTile(
+              title: const Text('All boards',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const BoardsScreen(),
-                    ))),
-          ),
+                        builder: (context) => const BoardsScreen()));
+              }),
           for (Board board in boards.boards.values)
             ListTile(
               title: Text(board.name),
               onTap: () {
+                Navigator.pop(context);
                 Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -53,5 +113,40 @@ class MainDrawer extends StatelessWidget {
         ]),
       );
     });
+  }
+
+  Future<void> _showContactUsDialog(BuildContext context) async {
+    await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: const Text('Bug? Question? Request?'),
+              content: SingleChildScrollView(
+                  child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Advise? Write to me, if you have any:'),
+                  const SizedBox(height: 8),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Clipboard.setData(
+                                const ClipboardData(text: 'dangalkin@hey.com'))
+                            .then((_) {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(
+                            content: Text('Email copied to clipboard.'),
+                            duration: Duration(seconds: 2),
+                          ));
+                        });
+                      },
+                      child: const Text('dangalkin@hey.com'))
+                ],
+              )),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('OK')),
+              ],
+            ));
   }
 }

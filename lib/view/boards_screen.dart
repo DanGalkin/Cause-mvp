@@ -1,5 +1,4 @@
 import 'package:cause_flutter_mvp/services/firebase_services.dart';
-import 'package:cause_flutter_mvp/view/login_screen.dart';
 import 'package:cause_flutter_mvp/view/view_utilities/ui_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -10,6 +9,7 @@ import './create_board_screen.dart';
 import './board_screen.dart';
 import '../controllers/board_controller.dart';
 import 'edit_board_screen.dart';
+import 'main_drawer.dart';
 import 'view_utilities/action_validation_utilities.dart';
 
 class BoardsScreen extends StatelessWidget {
@@ -22,31 +22,10 @@ class BoardsScreen extends StatelessWidget {
       return Scaffold(
           appBar: AppBar(
             title: Text(fbservices.loggedIn
-                ? 'Your boards, ${fbservices.currentUser!.displayName}:'
+                ? 'Your boards, ${fbservices.currentUser!.displayName}'
                 : 'Hi, visitor!'),
-            automaticallyImplyLeading: false,
-            actions: [
-              fbservices.loggedIn
-                  ? IconButton(
-                      icon: const Icon(Icons.logout),
-                      onPressed: () {
-                        fbservices.signOut().then((_) {
-                          Navigator.of(context)
-                              .pushReplacement(MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                          ));
-                        });
-                      },
-                    )
-                  : IconButton(
-                      icon: const Icon(Icons.login),
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
-                        ));
-                      }),
-            ],
           ),
+          drawer: const MainDrawer(),
           body: Scrollbar(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 15),
