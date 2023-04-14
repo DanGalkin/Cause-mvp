@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../model/parameter.dart';
 import '../../model/note.dart';
 import '../../model/board.dart';
@@ -372,4 +373,43 @@ class DescriptionButton extends StatelessWidget {
               });
         });
   }
+}
+
+Future<void> needMorePopup(BuildContext context, int boardsLeft) async {
+  await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+            title: const Text('Increase the limit'),
+            content: SingleChildScrollView(
+                child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                    'There is a limit of 5 boards you can create and use in current version.'),
+                const SizedBox(height: 8),
+                Text(
+                    'You have $boardsLeft left. If you need more, contact me at:'),
+                const SizedBox(height: 8),
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Clipboard.setData(
+                              const ClipboardData(text: 'dangalkin@hey.com'))
+                          .then((_) {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content: Text('Email copied to clipboard.'),
+                          duration: Duration(seconds: 2),
+                        ));
+                      });
+                    },
+                    child: const Text('dangalkin@hey.com'))
+              ],
+            )),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('OK')),
+            ],
+          ));
 }

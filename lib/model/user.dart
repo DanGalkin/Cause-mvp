@@ -15,6 +15,14 @@ class User {
     this.boardLimit = 5,
   });
 
+  int calculateBoardsToCreateLeft() {
+    final Set<String> boardsUsed =
+        boards.keys.map((key) => key.toString()).toList().toSet();
+    final Set<String> boardsCreatedAndUsed =
+        boardsUsed.intersection(boardsCreated.toSet());
+    return boardLimit - boardsCreatedAndUsed.length;
+  }
+
   User.fromMap(Map map)
       : uid = map['uid'],
         displayName = map['displayName'],

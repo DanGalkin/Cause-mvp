@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/board_controller.dart';
+import '../services/service_locator.dart';
 import 'create_board_from_template.dart';
 import 'view_utilities/ui_widgets.dart';
 
@@ -14,11 +15,14 @@ class CreateBoardScreen extends StatefulWidget {
 class _CreateBoardScreenState extends State<CreateBoardScreen> {
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
+  int? _boardsLeftToCreate;
 
   @override
   void initState() {
     _nameController = TextEditingController();
     _descriptionController = TextEditingController();
+    _boardsLeftToCreate =
+        getIt<BoardController>().user?.calculateBoardsToCreateLeft();
     super.initState();
   }
 
@@ -64,7 +68,36 @@ class _CreateBoardScreenState extends State<CreateBoardScreen> {
                             MaterialPageRoute(
                                 builder: (context) =>
                                     const CreateFromTemplateScreen()));
-                      })
+                      }),
+                  const SizedBox(height: 60),
+                  const Divider(),
+                  const Headline(
+                      'There is a limit of 5 boards you can create and use in current version.'),
+                  if (_boardsLeftToCreate != null)
+                    Row(
+                      children: [
+                        Text(
+                          'You have $_boardsLeftToCreate left. ',
+                          style: const TextStyle(
+                            color: Color(0xFF7B7B7B),
+                            fontWeight: FontWeight.w500,
+                            fontSize: 17,
+                          ),
+                        ),
+                        GestureDetector(
+                            onTap: () {
+                              needMorePopup(context, _boardsLeftToCreate!);
+                            },
+                            child: const Text(
+                              'Need more?',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 17,
+                              ),
+                            )),
+                      ],
+                    ),
                 ],
               ),
             ),

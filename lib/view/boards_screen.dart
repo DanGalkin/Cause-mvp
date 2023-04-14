@@ -5,6 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 
 import '../model/board.dart';
+import '../services/service_locator.dart';
 import './create_board_screen.dart';
 import './board_screen.dart';
 import '../controllers/board_controller.dart';
@@ -135,11 +136,17 @@ class BoardsScreen extends StatelessWidget {
             label: const Text('BOARD'),
             icon: const Icon(Icons.add),
             onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: ((context) => const CreateBoardScreen()),
-                  ));
+              int? boardsLeftToCreate =
+                  getIt<BoardController>().user?.calculateBoardsToCreateLeft();
+              if (boardsLeftToCreate == null || boardsLeftToCreate == 0) {
+                needMorePopup(context, boardsLeftToCreate ?? 0);
+              } else {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: ((context) => const CreateBoardScreen()),
+                    ));
+              }
             },
           ));
     });

@@ -86,7 +86,7 @@ class _ShareEditScreenState extends State<ShareEditScreen> {
           },
           barrierDismissible: true);
     } else {
-      await getIt<BoardController>().shareBoardByUid(board, uid);
+      await getIt<BoardController>().shareBoardWithUserByUid(board, uid);
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Board ${board.name} shared with $email')));
