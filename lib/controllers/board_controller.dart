@@ -9,6 +9,7 @@ import '../model/note.dart';
 import '../model/button_decoration.dart';
 
 import '../model/template.dart';
+import '../model/user.dart';
 import '../services/board_services.dart';
 import '../services/service_locator.dart';
 
@@ -20,6 +21,51 @@ class BoardController extends ChangeNotifier {
   Map<String, Board> _boards = {};
   Map<String, dynamic> _boardSubscriptions = {};
   Map<String, Board> get boards => _boards;
+
+  User? _user;
+  User? get user => _user;
+
+  Future<void> getCurrentUser() async {
+    Map? userMap = await fbServices.getCurrentUserMap();
+    if (userMap != null) {
+      _user = User.fromMap(userMap);
+    }
+  }
+
+  Future<User?> getUserByUid(String uid) async {
+    Map? userMap = await fbServices.getUserMapByUid(uid);
+    if (userMap != null) {
+      return User.fromMap(userMap);
+    } else {
+      return null;
+    }
+  }
+
+  Future<void> saveCurrentUser() async {
+    if (_user != null) {
+      saveUser(_user!);
+    }
+  }
+
+  Future<void> createUser(
+      {required String uid,
+      required String email,
+      required String displayName}) async {
+    User newUser = User(
+      uid: uid,
+      email: email,
+      displayName: displayName,
+      boards: {},
+      boardsCreated: [],
+    );
+
+    saveUser(newUser);
+  }
+
+  Future<void> saveUser(User user) async {
+    Map<String, dynamic> userMap = user.toMap();
+    fbServices.updateUser(userMap);
+  }
 
   Future<void> updateBoardsOfCurrentUser() async {
     _boards = {};
@@ -56,16 +102,17 @@ class BoardController extends ChangeNotifier {
 
   //create new board
   Future<void> createBoard({String name = '', String? description}) async {
-    final String uid = fbServices.currentUser!.uid;
     Board newBoard = Board(
         id: nanoid(10),
         name: name,
         description: description,
-        createdBy: uid,
+        createdBy: _user!.uid,
         params: <String, Parameter>{},
         permissions: {});
     await fbServices.createBoard(newBoard.toMap());
-    await shareBoardByUid(newBoard, uid);
+    _user!.boardsCreated
+        .add(newBoard.id); // it will be updated in DB via sharing
+    await shareBoardWithUser(newBoard, _user!);
     listenToBoardUpdates(newBoard);
   }
 
@@ -76,20 +123,47 @@ class BoardController extends ChangeNotifier {
     await fbServices.updateBoard(board.id, board.toMap());
   }
 
-  Future<void> shareBoardByUid(Board board, String uid,
+  Future<void> shareBoardWithUser(Board board, User user,
       {String permission = 'all'}) async {
-    fbServices.addUserToBoard(board.id, uid, permission: permission);
-    fbServices.addBoardToUser(board.id, uid, permission: permission);
+    addUserToBoard(board, user, permission: permission);
+    addBoardToUser(board, user, permission: permission);
+  }
+
+  Future<void> shareBoardWithUserByUid(Board board, String uid,
+      {String permission = 'all'}) async {
+    User? user = await getUserByUid(uid);
+    if (user != null) {
+      shareBoardWithUser(board, user, permission: permission);
+    }
+  }
+
+  Future<void> addUserToBoard(Board board, User user,
+      {String permission = 'all'}) async {
+    board.permissions[user.uid] = permission;
+    fbServices.updateBoard(board.id, board.toMap());
+  }
+
+  Future<void> addBoardToUser(Board board, User user,
+      {String permission = 'all'}) async {
+    user.boards[board.id] = permission;
+    fbServices.updateUser(user.toMap());
+  }
+
+  Future<void> removeUserFromBoard(Board board, User user,
+      {String permission = 'all'}) async {
+    board.permissions.remove(user.uid);
+    fbServices.updateBoard(board.id, board.toMap());
+  }
+
+  Future<void> removeBoardFromUser(Board board, User user) async {
+    user.boards.remove(board.id);
+    fbServices.updateUser(user.toMap());
   }
 
   //delete board -> make the validation that a board a shared
   Future<void> removeBoard(Board board) async {
-    final String uid = fbServices.currentUser!.uid;
-
-    //cancel subscription
-
-    await fbServices.removeUserFromBoard(board.id, uid);
-    await fbServices.removeBoardFromUser(board.id, uid);
+    await removeUserFromBoard(board, _user!);
+    await removeBoardFromUser(board, _user!);
     _boards.remove(board.id);
     //cancel subscription
     _boardSubscriptions[board.id].cancel();
@@ -434,7 +508,7 @@ class BoardController extends ChangeNotifier {
         params: paramsFromTemplate,
         permissions: {});
     await fbServices.createBoard(newBoard.toMap());
-    await shareBoardByUid(newBoard, uid);
+    await shareBoardWithUser(newBoard, _user!);
     listenToBoardUpdates(newBoard);
   }
 

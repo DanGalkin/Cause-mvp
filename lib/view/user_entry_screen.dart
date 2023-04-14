@@ -20,7 +20,14 @@ class _UserEntryScreenState extends State<UserEntryScreen> {
   void initState() {
     super.initState();
 
+    _getCurrentUserFromDB();
     _syncStorage();
+  }
+
+  Future<void> _getCurrentUserFromDB() async {
+    if (!mounted) return;
+    await boardController.getCurrentUser();
+    await boardController.saveCurrentUser();
   }
 
   void _syncStorage() async {

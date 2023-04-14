@@ -64,6 +64,31 @@ class FirebaseServices extends ChangeNotifier {
         {'uid': uid, 'email': email, 'displayName': displayName, 'boards': {}});
   }
 
+  Future<Map?> getCurrentUserMap() async {
+    final String? uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      return null;
+    }
+
+    return await getUserMapByUid(uid);
+  }
+
+  Future<void> updateUser(Map<String, dynamic> userMap) async {
+    DatabaseReference userRef =
+        database.ref().child('users').child(userMap['uid']);
+    userRef.update(userMap);
+  }
+
+  Future<Map?> getUserMapByUid(String uid) async {
+    DatabaseReference userRef = database.ref().child('users').child(uid);
+    DataSnapshot userSnapshot = await userRef.get();
+    if (userSnapshot.exists) {
+      return userSnapshot.value as Map;
+    } else {
+      return null;
+    }
+  }
+
   Future<void> createBoard(boardMap) async {
     print('saving board: ${boardMap['id']}');
     DatabaseReference boardRef = database.ref('boards/${boardMap['id']}');
@@ -163,15 +188,16 @@ class FirebaseServices extends ChangeNotifier {
   }
 
   Future<String?> emailByUid(String uid) async {
-    DatabaseReference usersRef = database.ref().child('users').child(uid);
-    String? email;
-    await usersRef.get().then(
-      (snapshot) {
-        Map user = snapshot.value as Map;
-        email = user['email'];
-      },
-    );
-    return email;
+    Map? user = await getUserMapByUid(uid);
+    if (user == null) {
+      return null;
+    }
+
+    if (user.containsKey('email')) {
+      return user['email'];
+    } else {
+      return null;
+    }
   }
 
   Future<void> createTemplate(templateMap) async {
