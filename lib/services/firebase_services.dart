@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart'
     hide EmailAuthProvider, PhoneAuthProvider;
@@ -30,12 +32,15 @@ class FirebaseServices extends ChangeNotifier {
     initializedNotifier.value = true;
 
     database = FirebaseDatabase.instance;
+    
+    String clientId = Platform.isAndroid
+      ? '925271095354-adsqb6ssnf1i0hi3b932thmbofj6209q.apps.googleusercontent.com'
+      : '925271095354-rs29eei351m6tb1itsc22uesr0pag5pv.apps.googleusercontent.com';
 
     FirebaseUIAuth.configureProviders([
       EmailAuthProvider(),
       GoogleProvider(
-          clientId:
-              '925271095354-adsqb6ssnf1i0hi3b932thmbofj6209q.apps.googleusercontent.com'),
+          clientId: clientId), 
     ]);
 
     FirebaseAuth.instance.userChanges().listen((user) {

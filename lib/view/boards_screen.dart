@@ -64,23 +64,31 @@ class BoardsScreen extends StatelessWidget {
                           //here is a footer with a hint and space for a FAB
                           return Column(
                             mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              SizedBox(height: 10),
+                            children: [
+                              const SizedBox(height: 10),
                               SizedBox(
                                 width: 320,
                                 child: Center(
-                                  child: Text(
-                                    '<-- Swipe left the Board button to edit or delete',
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(
-                                      color: Color.fromARGB(255, 184, 184, 184),
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                    ),
+                                  child: Row(
+                                    children: const [
+                                      Expanded(
+                                        child: FittedBox(
+                                          child: Text(
+                                            '<-- Swipe left the Board button to edit or delete',
+                                            textAlign: TextAlign.left,
+                                            style: TextStyle(
+                                              color: Color.fromARGB(255, 184, 184, 184),
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-                              SizedBox(height: 50),
+                              const SizedBox(height: 50),
                             ],
                           );
                         } else {

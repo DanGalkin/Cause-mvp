@@ -3,9 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>925271095354-0rk0q2ueb9iidtcm2lprmpgctqh2l8c8.apps.googleusercontent.com</string>
+	<string>925271095354-rs29eei351m6tb1itsc22uesr0pag5pv.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.925271095354-0rk0q2ueb9iidtcm2lprmpgctqh2l8c8</string>
+	<string>com.googleusercontent.apps.925271095354-rs29eei351m6tb1itsc22uesr0pag5pv</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>925271095354-nf6smcnq55b0pgf5jl3tvg0ae0u05jnu.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyCsjPFGC-sPi4bpIme8057SNMAIjBKSJbQ</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.causeFlutterMvp</string>
+	<string>com.watafun.causemvp</string>
 	<key>PROJECT_ID</key>
 	<string>cause-flutter-mvp</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,7 +31,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:925271095354:ios:9c9d90b197f971fa31dd03</string>
+	<string>1:925271095354:ios:10e130bccdeb65d631dd03</string>
 	<key>DATABASE_URL</key>
 	<string>https://cause-flutter-mvp-default-rtdb.europe-west1.firebasedatabase.app</string>
 </dict>

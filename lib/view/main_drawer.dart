@@ -59,33 +59,41 @@ class MainDrawer extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: FittedBox(
-                          alignment: Alignment.centerLeft,
-                          fit: BoxFit.scaleDown,
-                          child: Text(email ?? ' ',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                              )),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: FittedBox(
+                                alignment: Alignment.centerLeft,
+                                fit: BoxFit.scaleDown,
+                                child: Text(email ?? ' ',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                    )),
+                              ),
+                            ),
+                          ],
                         ),
+                        TextButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _showContactUsDialog(context);
+                      },
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.white,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-                  TextButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _showContactUsDialog(context);
-                    },
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.white,
+                      icon: const Icon(Icons.help_outline_outlined, size: 16),
+                      label: const Text('Contact us'),
+                    )
+                      ],
                     ),
-                    icon: const Icon(Icons.help_outline_outlined, size: 16),
-                    label: const Text('Contact us'),
-                  )
+                  ),
+                  
                 ],
               )),
           ListTile(
@@ -124,7 +132,7 @@ class MainDrawer extends StatelessWidget {
                   child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Advise? Write to me, if you have any:'),
+                  const Text('Advice? Write to me, if you have any:'),
                   const SizedBox(height: 8),
                   TextButton(
                       onPressed: () {
