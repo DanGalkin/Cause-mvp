@@ -7,6 +7,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cause_flutter_mvp/firebase_options.dart';
+import 'package:firebase_ui_oauth_apple/firebase_ui_oauth_apple.dart';
 import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -41,6 +42,7 @@ class FirebaseServices extends ChangeNotifier {
       EmailAuthProvider(),
       GoogleProvider(
           clientId: clientId), 
+      if(Platform.isIOS) AppleProvider()
     ]);
 
     FirebaseAuth.instance.userChanges().listen((user) {

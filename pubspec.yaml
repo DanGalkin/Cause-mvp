@@ -50,6 +50,7 @@ dependencies:
   csv: ^5.0.1
   google_sign_in: ^6.0.2
   firebase_ui_oauth_google: ^1.0.24
+  firebase_ui_oauth_apple: ^1.1.2
 
 dev_dependencies:
   flutter_test:

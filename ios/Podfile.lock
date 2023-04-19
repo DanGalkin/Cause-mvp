@@ -20,18 +20,18 @@ PODS:
   - Firebase/DynamicLinks (10.7.0):
     - Firebase/CoreOnly
     - FirebaseDynamicLinks (~> 10.7.0)
-  - firebase_auth (4.4.1):
+  - firebase_auth (4.4.2):
     - Firebase/Auth (= 10.7.0)
     - firebase_core
     - Flutter
-  - firebase_core (2.9.0):
+  - firebase_core (2.10.0):
     - Firebase/CoreOnly (= 10.7.0)
     - Flutter
   - firebase_database (10.1.0):
     - Firebase/Database (= 10.7.0)
     - firebase_core
     - Flutter
-  - firebase_dynamic_links (5.1.0):
+  - firebase_dynamic_links (5.1.1):
     - Firebase/DynamicLinks (= 10.7.0)
     - firebase_core
     - Flutter
@@ -152,10 +152,10 @@ SPEC CHECKSUMS:
   desktop_webview_auth: d645139460ef203d50bd0cdb33356785dd939cce
   emoji_picker_flutter: df19dac03a2b39ac667dc8d1da939ef3a9e21347
   Firebase: 0219acf760880eeec8ce479895bd7767466d9f81
-  firebase_auth: 5a84572b7f5315a3aff5b07c62bb0cd5a28cade5
-  firebase_core: d85432877e814811e040e7659f9c82faeab66e04
+  firebase_auth: 98778cde4127b34d2d006f8bd049d3a8131f37bd
+  firebase_core: 18d44f087248303a4a8f05d0099a000c46e3c77a
   firebase_database: 7dfac1ef83539a3716784b11f4d72d077c3464c2
-  firebase_dynamic_links: eb6716a5419a7b1ad5ef4860c84290c48a30be91
+  firebase_dynamic_links: 464b974eeb7a5b4b7c970062c49a3e39ff924f47
   FirebaseAuth: dd64c01631df724b09f33e584625775c52f7d71f
   FirebaseCore: e317665b9d744727a97e623edbbed009320afdd7
   FirebaseCoreInternal: fa2899eb1f340054858d289e5a0fb935a0a74e52
