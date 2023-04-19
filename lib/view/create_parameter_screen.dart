@@ -97,7 +97,7 @@ class _CreateParameterScreenState extends State<CreateParameterScreen> {
               ? const Text('Select Duration type')
               : Text('Duration type: ${_selectedDurationType.name}'),
           subtitle: const Text(
-              'Does this parameter occurs as just a moment or the an interval of time?'),
+              'Does this parameter occurs just as a moment or as an interval of time?'),
           content: _editScreen
               ? Container(
                   alignment: Alignment.centerLeft,
@@ -843,7 +843,7 @@ Widget _quantitativeDescription() {
               style: TextStyle(fontWeight: FontWeight.w500)),
           TextSpan(
               text:
-                  ', when the value is a number. One the next step you will choose its metric.'),
+                  ', when the value is a number. On the next step you will choose its metric.'),
         ]),
       ),
       SizedBox(height: 10),
@@ -865,7 +865,7 @@ Widget _ordinalDescription() {
               text: 'Ordinal', style: TextStyle(fontWeight: FontWeight.w500)),
           TextSpan(
               text:
-                  ' if the value differs within a set of ordered values. My headache may be 1.light, 2.heavy and 3.severe - these are ordered possible values. One the next step you will formulate values for this parameter.'),
+                  ' if the value differs within a set of ordered values. My headache may be 1.light, 2.heavy and 3.severe - these are ordered possible values. On the next step you will formulate values for this parameter.'),
         ]),
       ),
       SizedBox(height: 10),
@@ -888,7 +888,7 @@ Widget _categoricalDescription() {
               style: TextStyle(fontWeight: FontWeight.w500)),
           TextSpan(
               text:
-                  ' if the value differs within a set of unordered values. The coffee you drink might be Latte, Capuccino, Espresso or Macchiato. This set of values cannot be ordered. One the next step you will formulate categories for this parameter.'),
+                  ' if the value differs within a set of unordered values. The coffee you drink might be Latte, Capuccino, Espresso or Macchiato. This set of values cannot be ordered. On the next step you will formulate categories for this parameter.'),
         ]),
       ),
       SizedBox(height: 10),
