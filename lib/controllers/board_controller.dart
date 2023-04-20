@@ -62,6 +62,16 @@ class BoardController extends ChangeNotifier {
     saveUser(newUser);
   }
 
+  Future<void> deleteCurrentUser() async {
+    if (_user != null) {
+      for (Board board in _boards.values.toList()) {
+        await removeBoard(board);
+      }
+      fbServices.currentUser!.delete();
+      await fbServices.signOut();
+    }
+  }
+
   Future<void> saveUser(User user) async {
     Map<String, dynamic> userMap = user.toMap();
     fbServices.updateUser(userMap);

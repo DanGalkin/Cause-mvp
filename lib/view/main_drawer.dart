@@ -10,6 +10,8 @@ import './board_screen.dart';
 
 import '../model/board.dart';
 import 'login_screen.dart';
+import 'settings_screen.dart';
+import 'view_utilities/ui_widgets.dart';
 
 class MainDrawer extends StatelessWidget {
   const MainDrawer({super.key});
@@ -49,13 +51,14 @@ class MainDrawer extends StatelessWidget {
                       const SizedBox(width: 10),
                       IconButton(
                           onPressed: () {
-                            Navigator.pushAndRemoveUntil(
+                            Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const LoginScreen()),
-                                (route) => false);
+                                    builder: (context) =>
+                                        const SettingsScreen()));
                           },
-                          icon: const Icon(Icons.logout, color: Colors.white)),
+                          icon:
+                              const Icon(Icons.settings, color: Colors.white)),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -80,20 +83,20 @@ class MainDrawer extends StatelessWidget {
                           ],
                         ),
                         TextButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        _showContactUsDialog(context);
-                      },
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.white,
-                      ),
-                      icon: const Icon(Icons.help_outline_outlined, size: 16),
-                      label: const Text('Contact us'),
-                    )
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _showContactUsDialog(context);
+                          },
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.white,
+                          ),
+                          icon:
+                              const Icon(Icons.help_outline_outlined, size: 16),
+                          label: const Text('Contact us'),
+                        )
                       ],
                     ),
                   ),
-                  
                 ],
               )),
           ListTile(
@@ -137,15 +140,16 @@ class MainDrawer extends StatelessWidget {
                   TextButton(
                       onPressed: () {
                         Navigator.of(context).pop();
-                        Clipboard.setData(
-                                const ClipboardData(text: 'dangalkin@hey.com'))
-                            .then((_) {
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(const SnackBar(
-                            content: Text('Email copied to clipboard.'),
-                            duration: Duration(seconds: 2),
-                          ));
-                        });
+                        emailMe();
+                        // Clipboard.setData(
+                        //         const ClipboardData(text: 'dangalkin@hey.com'))
+                        //     .then((_) {
+                        //   ScaffoldMessenger.of(context)
+                        //       .showSnackBar(const SnackBar(
+                        //     content: Text('Email copied to clipboard.'),
+                        //     duration: Duration(seconds: 2),
+                        //   ));
+                        // });
                       },
                       child: const Text('dangalkin@hey.com'))
                 ],

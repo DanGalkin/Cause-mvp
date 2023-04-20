@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../model/parameter.dart';
 import '../../model/note.dart';
 import '../../model/board.dart';
@@ -393,15 +394,16 @@ Future<void> needMorePopup(BuildContext context, int boardsLeft) async {
                 TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
-                      Clipboard.setData(
-                              const ClipboardData(text: 'dangalkin@hey.com'))
-                          .then((_) {
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(const SnackBar(
-                          content: Text('Email copied to clipboard.'),
-                          duration: Duration(seconds: 2),
-                        ));
-                      });
+                      emailMe(subject: 'Cause app: need more boards!');
+                      // Clipboard.setData(
+                      //         const ClipboardData(text: 'dangalkin@hey.com'))
+                      //     .then((_) {
+                      //   ScaffoldMessenger.of(context)
+                      //       .showSnackBar(const SnackBar(
+                      //     content: Text('Email copied to clipboard.'),
+                      //     duration: Duration(seconds: 2),
+                      //   ));
+                      // });
                     },
                     child: const Text('dangalkin@hey.com'))
               ],
@@ -412,4 +414,22 @@ Future<void> needMorePopup(BuildContext context, int boardsLeft) async {
                   child: const Text('OK')),
             ],
           ));
+}
+
+Future<void> emailMe({String subject = 'Cause app: support'}) async {
+  String? encodeQueryParameters(Map<String, String> params) {
+    return params.entries
+        .map((MapEntry<String, String> e) =>
+            '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+        .join('&');
+  }
+
+  final Uri emailLaunchUri = Uri(
+    scheme: 'mailto',
+    path: 'dangalkin@hey.com',
+    query: encodeQueryParameters(
+        <String, String>{'subject': subject, 'body': 'Hey, Daniil!'}),
+  );
+
+  launchUrl(emailLaunchUri);
 }
