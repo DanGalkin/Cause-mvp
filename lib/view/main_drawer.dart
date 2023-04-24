@@ -35,18 +35,18 @@ class MainDrawer extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      GestureDetector(
-                        onTap: () {
+                      Expanded(
+                        child: FittedBox(
+                          alignment: Alignment.centerLeft,
+                          fit: BoxFit.scaleDown,
+                          child: GestureDetector(
+                            onTap: () {
                           Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         const BoardsScreen()));
                         },
-                        child: Expanded(
-                          child: FittedBox(
-                            alignment: Alignment.centerLeft,
-                            fit: BoxFit.scaleDown,
                             child: Text(
                               userName ?? 'Hi, visitor!',
                               style: const TextStyle(
