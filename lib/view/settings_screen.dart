@@ -19,7 +19,7 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
             title:
-                Expanded(child: FittedBox(child: Text(email ?? 'Settings')))),
+                Text(email ?? 'Settings')),
         drawer: const MainDrawer(),
         body: ListView(children: [
           ListTile(
@@ -66,7 +66,7 @@ class SettingsScreen extends StatelessWidget {
               title: const Text('Privacy policy'),
               trailing: const Icon(Icons.privacy_tip),
               onTap: () async {
-                final Uri url = Uri.parse('https://wata.fun/#/cause-privacy');
+                final Uri url = Uri.parse('https://cause-app.tech/cause-app-privacy-policy/');
                 if (!await launchUrl(url,
                     mode: LaunchMode.externalApplication)) {
                   throw Exception('Could not launch $url');
