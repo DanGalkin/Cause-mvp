@@ -1,25 +1,12 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
 import './view_utilities/ui_widgets.dart';
 import './parameter_picker.dart';
 
-import '../services/analytics_utilities/export_csv.dart';
-
-import '../model/board.dart';
-import 'parameter_picker_correlation.dart';
+import 'chart_screen.dart';
+import 'correlation_screen.dart';
 
 class AnalyticsScreen extends StatelessWidget {
-  const AnalyticsScreen({required this.board, super.key});
-
-  final Board board;
-
-  void _exportData(Board board) async {
-    File file = await ExportCSV(board: board).writeCSV();
-    await Share.shareFiles([file.path], text: 'Export Data');
-    await file.delete();
-  }
+  const AnalyticsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,15 +17,6 @@ class AnalyticsScreen extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
-            const SizedBox(height: 15),
-            ToolButton(
-                title: 'Export Data',
-                icon: const Icon(Icons.share),
-                popupDescription: const Text(
-                    'Export your gathered data in a simple csv format so you can play with it or share (with a coach or a doctor)'),
-                onPressed: () {
-                  _exportData(board);
-                }),
             const SizedBox(height: 15),
             ToolButton(
               title: '2-parameter chart',
@@ -65,28 +43,17 @@ class AnalyticsScreen extends StatelessWidget {
                     SizedBox(height: 15),
                     Text(
                         'Get a sense of correlation with the chart of 2 parameters of your choice.'),
-                    // SizedBox(height: 15),
-                    // Text.rich(
-                    //   TextSpan(
-                    //     children: [
-                    //       TextSpan(
-                    //           text: "More instructions under ",
-                    //           style: TextStyle(color: Colors.black)),
-                    //       WidgetSpan(
-                    //         child: Icon(Icons.info),
-                    //       ),
-                    //       TextSpan(
-                    //           text: " in the section.",
-                    //           style: TextStyle(color: Colors.black)),
-                    //     ],
-                    //   ),
-                    // ),
                   ]),
               onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ParameterPicker()));
+                pickParameters(context: context, count: 2).then((parameters) {
+                  if (parameters != null) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                ChartScreen(parameters: parameters)));
+                  }
+                });
               }, //show param picker and then make a graph
             ),
             const SizedBox(height: 15),
@@ -133,11 +100,15 @@ class AnalyticsScreen extends StatelessWidget {
                     ),
                   ]),
               onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            const CorrelationParameterPicker()));
+                pickParameters(context: context, count: 2).then((parameters) {
+                  if (parameters != null) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                CorrelationScreen(parameters: parameters)));
+                  }
+                });
               },
             ),
           ],

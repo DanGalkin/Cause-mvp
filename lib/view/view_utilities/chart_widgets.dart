@@ -595,12 +595,23 @@ List<DateTime> calculateTicks(
 
   List<DateTime> ticks = [];
 
-  for (DateTime nextTick = startOfDay(start);
-      nextTick.isBefore(end ?? DateTime.now());
-      nextTick = nextTick.add(Duration(minutes: deltaMinutes))) {
-    ticks.add(nextTick);
+  for (DateTime dayTick = startOfDay(start);
+      dayTick.isBefore(end ?? DateTime.now());
+      dayTick = nextDay(dayTick)) {
+    ticks.add(dayTick);
+    DateTime nextDayTick = nextDay(dayTick);
+    for (DateTime hoursTick = dayTick.add(Duration(minutes: deltaMinutes));
+        hoursTick.isBefore(end ?? DateTime.now()) &&
+            hoursTick.isBefore(nextDayTick);
+        hoursTick = hoursTick.add(Duration(minutes: deltaMinutes))) {
+      ticks.add(hoursTick);
+    }
   }
   return ticks;
+}
+
+DateTime nextDay(DateTime day) {
+  return DateTime(day.year, day.month, day.day + 1);
 }
 
 DateTime startOfDay(DateTime time) {

@@ -9,6 +9,7 @@ import '../services/service_locator.dart';
 import './create_board_screen.dart';
 import './board_screen.dart';
 import '../controllers/board_controller.dart';
+import 'analytics_screen.dart';
 import 'edit_board_screen.dart';
 import 'main_drawer.dart';
 import 'view_utilities/action_validation_utilities.dart';
@@ -25,6 +26,17 @@ class BoardsScreen extends StatelessWidget {
             title: Text(fbservices.loggedIn
                 ? 'Your boards, ${fbservices.currentUser!.displayName}'
                 : 'Hi, visitor!'),
+            actions: [
+              IconButton(
+                  icon: const Icon(Icons.analytics),
+                  tooltip: 'Analytics',
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const AnalyticsScreen()));
+                  }),
+            ],
           ),
           drawer: const MainDrawer(),
           body: Scrollbar(
@@ -77,7 +89,8 @@ class BoardsScreen extends StatelessWidget {
                                             '<-- Swipe left the Board button to edit or delete',
                                             textAlign: TextAlign.left,
                                             style: TextStyle(
-                                              color: Color.fromARGB(255, 184, 184, 184),
+                                              color: Color.fromARGB(
+                                                  255, 184, 184, 184),
                                               fontWeight: FontWeight.w500,
                                               fontSize: 14,
                                             ),

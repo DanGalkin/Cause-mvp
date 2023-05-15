@@ -123,16 +123,17 @@ class _ParameterScreenState extends State<ParameterScreen> {
                     }
                   : null,
             ),
-            IconButton(
-              icon: const Icon(Icons.insights),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            ChartScreen(parameters: [parameter])));
-              },
-            ),
+            // Not yet available
+            // IconButton(
+            //   icon: const Icon(Icons.insights),
+            //   onPressed: () {
+            //     Navigator.push(
+            //         context,
+            //         MaterialPageRoute(
+            //             builder: (context) =>
+            //                 ChartScreen(parameters: [parameter])));
+            //   },
+            // ),
             IconButton(
               icon: const Icon(Icons.view_list),
               onPressed: () {

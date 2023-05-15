@@ -8,7 +8,14 @@ import '../controllers/board_controller.dart';
 import './view_utilities/ui_widgets.dart';
 
 import '../services/service_locator.dart';
-import 'chart_screen.dart';
+
+Future<List<Parameter>?> pickParameters(
+    {required BuildContext context, required int count}) async {
+  return Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => ParameterPicker(pickCount: count)));
+}
 
 class ParameterPicker extends StatefulWidget {
   const ParameterPicker({this.pickCount = 2, super.key});
@@ -66,11 +73,10 @@ class _ParameterPickerState extends State<ParameterPicker> {
       )),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ChartScreen(parameters: _picked),
-              ));
+          Navigator.pop(
+            context,
+            _picked,
+          );
         },
         label: const Text('NEXT'),
         icon: const Icon(Icons.arrow_forward),
