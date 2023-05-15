@@ -39,12 +39,21 @@ class MainDrawer extends StatelessWidget {
                         child: FittedBox(
                           alignment: Alignment.centerLeft,
                           fit: BoxFit.scaleDown,
-                          child: Text(
-                            userName ?? 'Hi, visitor!',
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.w700),
+                          child: GestureDetector(
+                            onTap: () {
+                          Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const BoardsScreen()));
+                        },
+                            child: Text(
+                              userName ?? 'Hi, visitor!',
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w700),
+                            ),
                           ),
                         ),
                       ),
