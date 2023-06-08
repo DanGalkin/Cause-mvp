@@ -99,3 +99,7 @@ String showStartOfRecording(Parameter parameter) {
   DateTime startMoment = parameter.recordState.startedAt!;
   return 'Started: ${toContextualMoment(startMoment)}';
 }
+
+String prettifyDT(DateTime time) {
+  return DateFormat.MMMd().add_Hm().format(time);
+}

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import '../../view/view_utilities/text_utilities.dart';
 import './common_analytics_utilities.dart';
 import 'package:flutter/material.dart';
 
@@ -133,8 +134,7 @@ Map<String, dynamic> calculateFixedCorrelation({
       .length;
 
   //standard formula for phi coeficient
-  phi = (n11 * n00 - n10 * n01) /
-      sqrt((n00 + n10) * (n00 + n01) * (n11 + n10) * (n11 + n01));
+  phi = calculatePhi(n00: n00, n01: n01, n10: n10, n11: n11);
 
   Map<String, dynamic> result = {
     'n00': n00,
@@ -202,4 +202,261 @@ List<Map<String, dynamic>> calculateAllFixedCorrelations({
   }
 
   return results;
+}
+
+Map<String, dynamic> calculateFloatingCorrelation({
+  required Parameter firstParameter,
+  required Parameter secondParameter,
+  required DateTimeRange range,
+  int intervalDuration = 24,
+  int delay = 0,
+}) {
+  //DEBUG PRINTS
+  print(
+      'FLOATING CORRELATION FOR: ${firstParameter.name} & ${secondParameter.name}');
+  print('--------------------');
+  print('Range: ${prettifyDT(range.start)} - ${prettifyDT(range.end)}');
+  print('Interval: $intervalDuration');
+  print('Delay: $delay');
+  print('--------------------');
+
+  List<DateTimeRange> getTargetIntervals(List<DateTime> noteTimes) {
+    List<DateTimeRange> intervals = [];
+    for (DateTime noteTime in noteTimes) {
+      DateTime startInterval = noteTime.add(Duration(hours: delay));
+      DateTime endInterval =
+          startInterval.add(Duration(hours: intervalDuration));
+      DateTimeRange interval =
+          DateTimeRange(start: startInterval, end: endInterval);
+      intervals.add(interval);
+    }
+    return intervals;
+  }
+
+  Map<String, Set<int>> matchIntervalsWithNoteTimes(
+      List<DateTimeRange> intervals, List<DateTime> noteTimes) {
+    Set<int> intervalsInclude = <int>{};
+    Set<int> intervalsNotInclude = <int>{};
+    Set<int> notesIncluded = <int>{};
+    Set<int> notesNotIncluded = <int>{};
+
+    intervals.asMap().forEach((iIndex, interval) {
+      noteTimes.asMap().forEach((tIndex, noteTime) {
+        if (noteTime.isAfter(interval.start) &&
+            noteTime.isBefore(interval.end)) {
+          intervalsInclude.add(iIndex);
+          notesIncluded.add(tIndex);
+        }
+      });
+    });
+
+    List<int> iIndexes = [for (int i = 0; i < intervals.length; i++) i];
+    List<int> tIndexes = [for (int i = 0; i < noteTimes.length; i++) i];
+
+    intervalsNotInclude = iIndexes.toSet().difference(intervalsInclude);
+
+    notesNotIncluded = tIndexes.toSet().difference(notesIncluded);
+
+    return {
+      'intervalsInclude': intervalsInclude,
+      'intervalsNotInclude': intervalsNotInclude,
+      'notesIncluded': notesIncluded,
+      'notesNotIncluded': notesNotIncluded,
+    };
+  }
+
+  Set<int> getRelevantHourIndexes(List<DateTime> noteTimes) {
+    Set<int> relevantHourIndexes = <int>{};
+    for (DateTime noteTime in noteTimes) {
+      relevantHourIndexes.add(noteTime.hour);
+    }
+    return relevantHourIndexes;
+  }
+
+  List<DateTimeRange> getRelevantHourIntervals(
+      Set<int> relevantHourIndexes, DateTimeRange p1range) {
+    List<DateTimeRange> intervals = [];
+
+    //get first day intervals
+    for (int hourIndex in relevantHourIndexes) {
+      if (hourIndex > p1range.start.hour) {
+        DateTime relevantIntervalStart = hourOfDay(hourIndex, p1range.start);
+        DateTimeRange relevantInterval = DateTimeRange(
+            start: relevantIntervalStart,
+            end: relevantIntervalStart.add(const Duration(hours: 1)));
+        intervals.add(relevantInterval);
+      }
+    }
+    //get last day intervals
+    for (int hourIndex in relevantHourIndexes) {
+      if (hourIndex < p1range.end.hour - 1) {
+        DateTime relevantIntervalStart = hourOfDay(hourIndex, p1range.end);
+        DateTimeRange relevantInterval = DateTimeRange(
+            start: relevantIntervalStart,
+            end: relevantIntervalStart.add(const Duration(hours: 1)));
+        intervals.add(relevantInterval);
+      }
+    }
+
+    //get intervals for days in the middle
+    for (DateTime day = startOfNextDay(p1range.start);
+        day.isBefore(startOfDay(p1range.end));
+        day = startOfNextDay(day)) {
+      for (int hourIndex in relevantHourIndexes) {
+        DateTime relevantIntervalStart = hourOfDay(hourIndex, day);
+        DateTimeRange relevantInterval = DateTimeRange(
+            start: relevantIntervalStart,
+            end: relevantIntervalStart.add(const Duration(hours: 1)));
+        intervals.add(relevantInterval);
+      }
+    }
+
+    return intervals;
+  }
+
+  List<DateTimeRange> getEmptyTargetIntervals(
+      List<DateTimeRange> relevantHourIntervals, List<DateTime> p1noteTimes) {
+    List<DateTimeRange> targetIntervals = [];
+    for (DateTimeRange relevantHourInterval in relevantHourIntervals) {
+      bool includesAny = false;
+      for (DateTime noteTime in p1noteTimes) {
+        if (includedInRange(noteTime, relevantHourInterval)) {
+          includesAny = true;
+        }
+      }
+      if (!includesAny) {
+        DateTime targetIntervalStart =
+            relevantHourInterval.start.add(Duration(hours: delay));
+        DateTime targetIntervalEnd = relevantHourInterval.end
+            .add(Duration(hours: delay + intervalDuration));
+        DateTimeRange targetInterval =
+            DateTimeRange(start: targetIntervalStart, end: targetIntervalEnd);
+        targetIntervals.add(targetInterval);
+      }
+    }
+
+    return targetIntervals;
+  }
+
+  //how many times p1 occured and p2 NOT
+  int n10;
+  //how many times p1 occured and p2 occured
+  int n11;
+  //how many times p1 NOT occured and p2 occured
+  int n01;
+  //how many times neither p1 not p2 occured
+  int n00;
+  //phi coefficient
+  double phi;
+
+  //takes into account that we cannot see the result of p1 (in the future) if it occured too late
+  DateTimeRange p1Range = DateTimeRange(
+      start: range.start,
+      end: range.end.subtract(Duration(hours: intervalDuration + delay)));
+  //takes into account that we cannot see the cause of p2 occurances if it occured to early
+  DateTimeRange p2Range = DateTimeRange(
+      start: range.start.add(Duration(hours: intervalDuration + delay)),
+      end: range.end);
+
+  print('p1Range: ${prettifyDT(p1Range.start)} - ${prettifyDT(p1Range.end)}');
+  print('p2Range: ${prettifyDT(p2Range.start)} - ${prettifyDT(p2Range.end)}');
+  print('--------------------');
+
+  //get the list of times of the notes of p1
+  List<DateTime> p1NoteTimes = getNoteTimes(firstParameter, p1Range);
+  print('p1Notes (${p1NoteTimes.length}): $p1NoteTimes');
+  print('--------------------');
+
+  //get target intervals where we search got p2
+  List<DateTimeRange> targetIntervals = getTargetIntervals(p1NoteTimes);
+  print(
+      'Target Intervals to check p2 (${targetIntervals.length}): $targetIntervals');
+  print('--------------------');
+
+  //get the list of times of the notes of p2
+  List<DateTime> p2NoteTimes = getNoteTimes(secondParameter, p2Range);
+  print('p2Notes (${p2NoteTimes.length}): $p2NoteTimes');
+  print('--------------------');
+
+  //get indexes of intervals having a note
+  Map<String, Set<int>> matchResult =
+      matchIntervalsWithNoteTimes(targetIntervals, p2NoteTimes);
+
+  n10 = matchResult['intervalsNotInclude']!.length;
+  n11 = matchResult['intervalsInclude']!.length;
+  n01 = matchResult['notesNotIncluded']!.length;
+  print('n10: $n10');
+  print('n11: $n11');
+  print('n01: $n01');
+  print('--------------------');
+
+  //Find the relevant hourIntervals for n00
+  print('FINDING N00:');
+  //Take every p1 noteTime and generate a set of hourIndexes to check
+  Set<int> relevantHourIndexes = getRelevantHourIndexes(p1NoteTimes);
+  print('relevant Hour Indexes: $relevantHourIndexes');
+
+  //Get List of p1 intervals to check n00: from Indexes and p1Range
+  List<DateTimeRange> relevantHourIntervals =
+      getRelevantHourIntervals(relevantHourIndexes, p1Range);
+  print(
+      'relevant Hour Intervals(${relevantHourIntervals.length}): $relevantHourIntervals');
+
+  //Get target Hour Intervals to check n00 (p1 NOT occured) with p2 occurances
+  List<DateTimeRange> emptyTargetIntervals =
+      getEmptyTargetIntervals(relevantHourIntervals, p1NoteTimes);
+  print(
+      'Relevant Empty N00 Intervals (${emptyTargetIntervals.length}): $emptyTargetIntervals');
+
+  //Calculate n00, where it is the count if empty N00 intervals not including unmatched p2
+  //p2 note not included in target intervals
+
+  //Seems like we don't need it - FIX
+  // List<DateTime> unmatchedP2NoteTimes = [
+  //   for (int index in matchResult['notesNotIncluded']!) p2NoteTimes[index]
+  // ];
+  // print(
+  //     'p2 notes not included in target intervals (${unmatchedP2NoteTimes.length}): $unmatchedP2NoteTimes');
+
+  //How many NOO intervals does not include any of p2 notes
+  Map<String, Set<int>> emptyIntervalsMatch =
+      matchIntervalsWithNoteTimes(emptyTargetIntervals, p2NoteTimes);
+  n00 = emptyIntervalsMatch['intervalsNotInclude']!.length;
+
+  //Need to check if intervals do really not include any of p2 note
+  List<DateTimeRange> emptyN00IntervalNotInclude = [
+    for (int index in emptyIntervalsMatch['intervalsNotInclude']!)
+      emptyTargetIntervals[index]
+  ];
+  print(
+      'Empty N00 Intervals NOT INCLUDE p2: (${emptyN00IntervalNotInclude.length}): $emptyN00IntervalNotInclude');
+
+  phi = calculatePhi(n00: n00, n01: n01, n10: n10, n11: n11);
+
+  print('END OF CALCULATION');
+  print('----------------------------------------');
+
+  return {
+    'n00': n00,
+    'n01': n01,
+    'n10': n10,
+    'n11': n11,
+    'phi': phi,
+  };
+}
+
+List<DateTime> getNoteTimes(Parameter parameter, DateTimeRange range) {
+  List<DateTime> noteTimes = [];
+  for (Note note in parameter.notes.values) {
+    DateTime noteTime = getNoteTime(note);
+    if (includedInRange(noteTime, range)) {
+      noteTimes.add(noteTime);
+    }
+  }
+  return noteTimes;
+}
+
+bool includedInRange(DateTime time, DateTimeRange range) {
+  return (time == range.start || time.isAfter(range.start)) &&
+      time.isBefore(range.end);
 }
