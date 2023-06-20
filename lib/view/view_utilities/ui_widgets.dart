@@ -153,6 +153,37 @@ class ChartLabel extends StatelessWidget {
   }
 }
 
+class SmallParameterLabel extends StatelessWidget {
+  const SmallParameterLabel(
+      {required this.parameter, this.onTap, this.leadingIcon, super.key});
+
+  final Parameter parameter;
+  final VoidCallback? onTap;
+  final Icon? leadingIcon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(3),
+      height: 30,
+      decoration: BoxDecoration(
+        color: parameter.decoration.color,
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Row(
+        children: [
+          if (leadingIcon != null)
+            Row(children: [
+              FittedBox(fit: BoxFit.contain, child: leadingIcon!),
+              const SizedBox(width: 5),
+            ]),
+          Text(parameter.name, style: const TextStyle(fontSize: 15)),
+        ],
+      ),
+    );
+  }
+}
+
 class RemovableParameterTitle extends StatelessWidget {
   const RemovableParameterTitle(
       {super.key, required this.parameter, required this.onRemove});

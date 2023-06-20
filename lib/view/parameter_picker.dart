@@ -33,12 +33,12 @@ class _ParameterPickerState extends State<ParameterPicker> {
 
   @override
   Widget build(BuildContext context) {
+    //true when the required amount is picked
     bool validToProceed = _picked.length == widget.pickCount;
 
     return Scaffold(
       appBar: AppBar(title: Text('Choose ${widget.pickCount} parameters')),
-      body: SingleChildScrollView(
-          child: Padding(
+      body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Center(
           child: SizedBox(
@@ -70,14 +70,16 @@ class _ParameterPickerState extends State<ParameterPicker> {
                 }),
               ])),
         ),
-      )),
+      ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.pop(
-            context,
-            _picked,
-          );
-        },
+        onPressed: !validToProceed
+            ? () {}
+            : () {
+                Navigator.pop(
+                  context,
+                  _picked,
+                );
+              },
         label: const Text('NEXT'),
         icon: const Icon(Icons.arrow_forward),
         backgroundColor: validToProceed ? null : Colors.grey,
@@ -119,6 +121,7 @@ class SelectedParametersList extends StatelessWidget {
               )),
           onReorder: onReorder,
           shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
         ),
       ],
     );
@@ -133,30 +136,34 @@ class ParamFromBoardSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Board> boards = getIt<BoardController>().boards.values.toList();
-    return Column(mainAxisSize: MainAxisSize.min, children: [
-      const Headline('Select a parameter from board:'),
-      const SizedBox(height: 15),
-      Column(children: [
-        ...boards.map((board) => Column(
-              children: [
-                ListTile(
-                  title: Text(
-                    board.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w500,
+    return Expanded(
+      child: SingleChildScrollView(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          const Headline('Select a parameter from board:'),
+          const SizedBox(height: 15),
+          Column(children: [
+            ...boards.map((board) => Column(
+                  children: [
+                    ListTile(
+                      title: Text(
+                        board.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      onTap: () async {
+                        Parameter? selected =
+                            await _showParameterSelectionDialog(board, context);
+                        if (selected != null) onSelect(selected);
+                      },
                     ),
-                  ),
-                  onTap: () async {
-                    Parameter? selected =
-                        await _showParameterSelectionDialog(board, context);
-                    if (selected != null) onSelect(selected);
-                  },
-                ),
-                const Divider(),
-              ],
-            ))
-      ]),
-    ]);
+                    const Divider(),
+                  ],
+                ))
+          ]),
+        ]),
+      ),
+    );
   }
 
   Future<Parameter?> _showParameterSelectionDialog(

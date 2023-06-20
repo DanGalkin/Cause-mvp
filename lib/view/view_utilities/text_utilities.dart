@@ -41,6 +41,44 @@ String toContextualMoment(DateTime date) {
   return DateFormat.yMMMd().add_Hm().format(date);
 }
 
+String toContextualDate(DateTime date) {
+  if (date.isToday()) {
+    return 'Today';
+  }
+
+  if (date.isYesterday()) {
+    return 'Yesterday';
+  }
+
+  if (date.isSameYear(DateTime.now())) {
+    return DateFormat.MMMd().format(date);
+  }
+
+  return DateFormat.yMMMd().format(date);
+}
+
+String toContextualDurationDates(DateTimeRange duration) {
+  if (duration.start.isSameDate(duration.end) && duration.start.isToday()) {
+    return 'Today';
+  }
+
+  if (duration.start.isSameDate(duration.end) && duration.start.isYesterday()) {
+    return 'Yesterday';
+  }
+
+  if (duration.start.isSameDate(duration.end) &&
+      duration.start.isSameYear(DateTime.now())) {
+    return DateFormat.MMMd().format(duration.start);
+  }
+
+  if (duration.start.isSameYear(duration.end) &&
+      duration.start.isSameYear(DateTime.now())) {
+    return '${DateFormat.MMMd().format(duration.start)} - ${DateFormat.MMMd().format(duration.end)}';
+  }
+
+  return '${DateFormat.yMMMd().format(duration.start)} - ${DateFormat.yMMMd().format(duration.end)}';
+}
+
 String toContextualDuration(DateTimeRange duration) {
   if (duration.start.isSameDate(duration.end) && duration.start.isToday()) {
     return 'Today, ${DateFormat.Hm().format(duration.start)} - ${DateFormat.Hm().format(duration.end)}';

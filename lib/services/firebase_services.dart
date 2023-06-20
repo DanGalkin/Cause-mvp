@@ -33,16 +33,15 @@ class FirebaseServices extends ChangeNotifier {
     initializedNotifier.value = true;
 
     database = FirebaseDatabase.instance;
-    
+
     String clientId = Platform.isAndroid
-      ? '925271095354-adsqb6ssnf1i0hi3b932thmbofj6209q.apps.googleusercontent.com'
-      : '925271095354-rs29eei351m6tb1itsc22uesr0pag5pv.apps.googleusercontent.com';
+        ? '925271095354-adsqb6ssnf1i0hi3b932thmbofj6209q.apps.googleusercontent.com'
+        : '925271095354-rs29eei351m6tb1itsc22uesr0pag5pv.apps.googleusercontent.com';
 
     FirebaseUIAuth.configureProviders([
       EmailAuthProvider(),
-      GoogleProvider(
-          clientId: clientId), 
-      if(Platform.isIOS) AppleProvider()
+      GoogleProvider(clientId: clientId),
+      if (Platform.isIOS) AppleProvider()
     ]);
 
     FirebaseAuth.instance.userChanges().listen((user) {
