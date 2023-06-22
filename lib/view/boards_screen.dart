@@ -1,4 +1,3 @@
-import 'package:cause_flutter_mvp/services/firebase_services.dart';
 import 'package:cause_flutter_mvp/view/view_utilities/ui_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -19,13 +18,10 @@ class BoardsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<BoardController, FirebaseServices>(
-        builder: (context, boards, fbservices, child) {
+    return Consumer<BoardController>(builder: (context, boards, child) {
       return Scaffold(
           appBar: AppBar(
-            title: Text(fbservices.loggedIn
-                ? 'Your boards, ${fbservices.currentUser!.displayName}'
-                : 'Hi, visitor!'),
+            title: const Text('Your boards'),
             actions: [
               IconButton(
                   icon: const Icon(Icons.analytics),
