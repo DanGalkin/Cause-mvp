@@ -206,7 +206,7 @@ class _SharingBoardScreenState extends State<SharingBoardScreen> {
                       icon: const Icon(Icons.copy),
                       onPressed: () {
                         //copy code to clipboard
-                        Clipboard.setData(ClipboardData(text: _templateId))
+                        Clipboard.setData(ClipboardData(text: _templateId!))
                             .then((_) {
                           ScaffoldMessenger.of(context)
                               .showSnackBar(const SnackBar(
