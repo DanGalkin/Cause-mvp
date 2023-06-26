@@ -37,7 +37,7 @@ class _OneParamChartState extends State<OneParamChart> {
   double _selectedTickFrequency = 1;
 
   //refactor - don't think should be there
-  final gestureChannel = StreamController<GestureSignal>.broadcast();
+  final gestureChannel = StreamController<GestureEvent>.broadcast();
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +101,7 @@ class SingleParamChart extends StatelessWidget {
   final double tickFrequency;
   final int showTicks;
   final DateTime timeAxisStart;
-  final StreamController<GestureSignal>? gestureChannel;
+  final StreamController<GestureEvent>? gestureChannel;
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +172,7 @@ class SingleParamChart extends StatelessWidget {
 
     //Set variables and PointElements for moment or durational parameters
     Map<String, Variable<Map<dynamic, dynamic>, dynamic>> variables;
-    List<GeomElement<Shape>> elements;
+    List<Mark<Shape>> elements;
     if (parameter.durationType == DurationType.moment) {
       variables = {
         'time': Variable(
@@ -190,10 +190,10 @@ class SingleParamChart extends StatelessWidget {
       };
 
       elements = [
-        PointElement(
+        PointMark(
           position: Varset('value') * Varset('time'),
-          color: ColorAttr(value: parameter.decoration.color),
-          elevation: SizeAttr(value: 1),
+          color: ColorEncode(value: parameter.decoration.color),
+          elevation: SizeEncode(value: 1),
         )
       ];
     } else {
@@ -216,22 +216,22 @@ class SingleParamChart extends StatelessWidget {
       };
 
       elements = [
-        IntervalElement(
+        IntervalMark(
             position: Varset('value') * (Varset('start') + Varset('end')),
-            shape: ShapeAttr(
+            shape: ShapeEncode(
                 value: RectShape(borderRadius: BorderRadius.circular(2))),
-            size: SizeAttr(value: 3),
-            color: ColorAttr(value: parameter.decoration.color),
-            elevation: SizeAttr(value: 1)),
-        PointElement(
+            size: SizeEncode(value: 3),
+            color: ColorEncode(value: parameter.decoration.color),
+            elevation: SizeEncode(value: 1)),
+        PointMark(
           position: Varset('value') * Varset('start'),
-          color: ColorAttr(value: parameter.decoration.color),
-          elevation: SizeAttr(value: 1),
+          color: ColorEncode(value: parameter.decoration.color),
+          elevation: SizeEncode(value: 1),
         ),
-        PointElement(
+        PointMark(
           position: Varset('value') * Varset('end'),
-          color: ColorAttr(value: parameter.decoration.color),
-          elevation: SizeAttr(value: 1),
+          color: ColorEncode(value: parameter.decoration.color),
+          elevation: SizeEncode(value: 1),
         ),
       ];
     }
@@ -239,15 +239,15 @@ class SingleParamChart extends StatelessWidget {
     return Chart(
       data: datum,
       variables: variables,
-      elements: elements,
+      marks: elements,
       axes: [
         AxisGuide(
-          line: StrokeStyle(
-            color: const Color(0xffe8e8e8),
+          line: PaintStyle(
+            strokeColor: const Color(0xffe8e8e8),
           ),
           label: LabelStyle(
             offset: const Offset(-7.5, 0),
-            style: const TextStyle(
+            textStyle: const TextStyle(
               fontSize: 10,
               color: Color(0xff808080),
             ),
@@ -256,24 +256,24 @@ class SingleParamChart extends StatelessWidget {
             maxLines: 2,
             ellipsis: '...',
           ),
-          grid: StrokeStyle(
-            color: const Color(0xffe8e8e8),
+          grid: PaintStyle(
+            strokeColor: const Color(0xffe8e8e8),
             dash: [4, 2],
           ),
         ),
         AxisGuide(
-          line: StrokeStyle(
-            color: const Color(0xffe8e8e8),
+          line: PaintStyle(
+            strokeColor: const Color(0xffe8e8e8),
           ),
           label: LabelStyle(
             offset: const Offset(0, 7.5),
-            style: const TextStyle(
+            textStyle: const TextStyle(
               fontSize: 7,
               color: Color(0xff808080),
             ),
           ),
-          grid: StrokeStyle(
-            color: const Color(0xffe8e8e8),
+          grid: PaintStyle(
+            strokeColor: const Color(0xffe8e8e8),
             dash: [4, 2],
           ),
         ),
@@ -281,9 +281,9 @@ class SingleParamChart extends StatelessWidget {
       coord: RectCoord(
         transposed: true,
         horizontalRange: [horizontalRangeStart, 1],
-        horizontalRangeUpdater: Defaults.horizontalRangeSignal,
+        horizontalRangeUpdater: Defaults.horizontalRangeEvent,
       ),
-      gestureChannel: gestureChannel,
+      gestureStream: gestureChannel,
     );
   }
 }
@@ -314,7 +314,7 @@ class TwoParamsChart extends StatefulWidget {
 class _TwoParamsChartState extends State<TwoParamsChart> {
   double _selectedTickFrequency = 1;
 
-  final gestureChannel = StreamController<GestureSignal>.broadcast();
+  final gestureChannel = StreamController<GestureEvent>.broadcast();
 
   @override
   Widget build(BuildContext context) {
