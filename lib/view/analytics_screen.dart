@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../controllers/board_controller.dart';
 import './view_utilities/ui_widgets.dart';
 import './parameter_picker.dart';
 
+import 'camino_stats_screen.dart';
 import 'chart_screen.dart';
-import 'correlation_screen.dart';
 import 'daily_correlation_screen.dart';
 
 class AnalyticsScreen extends StatelessWidget {
@@ -97,9 +99,53 @@ class AnalyticsScreen extends StatelessWidget {
               }, //show param picker and then make a graph
             ),
             const SizedBox(height: 15),
+            ToolButton(
+              title: 'Camino stats',
+              icon: const Icon(Icons.route),
+              popupDescription: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                        'Daily statistic of Camino route. To get the stats you should have these boards:'),
+                    const SizedBox(height: 5),
+                    const Text('"El Camino: Walk"'),
+                    const SizedBox(height: 5),
+                    const Text('"El Camino: Stop"'),
+                    const SizedBox(height: 5),
+                    const Text('"El Camino: Equipment"'),
+                    const SizedBox(height: 15),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          createCaminoBoards(context);
+                        },
+                        child: const Text(
+                            'Create all El Camino boards in one click')),
+                  ]),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const CaminoStatsScreen()));
+              }, //show param picker and then make a graph
+            ),
           ],
         ),
       ),
     );
   }
+}
+
+void createCaminoBoards(BuildContext context) async {
+  await Provider.of<BoardController>(context, listen: false)
+      .createBoardFromTemplateId('bEjhxW');
+  await Provider.of<BoardController>(context, listen: false)
+      .createBoardFromTemplateId('X4r_ch');
+  await Provider.of<BoardController>(context, listen: false)
+      .createBoardFromTemplateId('KckBid');
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: Text('El Camino boards are created!'),
+    duration: const Duration(seconds: 2),
+  ));
 }

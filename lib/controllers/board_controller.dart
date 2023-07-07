@@ -522,5 +522,12 @@ class BoardController extends ChangeNotifier {
     listenToBoardUpdates(newBoard);
   }
 
+  Future<void> createBoardFromTemplateId(String id) async {
+    Template? template = await getTemplateById(id);
+    if (template != null) {
+      await createBoardFromTemplate(template!);
+    }
+  }
+
   //HERE THEY END
 }
